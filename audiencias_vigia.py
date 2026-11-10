@@ -863,7 +863,7 @@ def _con():
     return N.con(DB)
 
 
-BRUNA_SL = 5                      # Dra. Vitória no Sistema Santos Lourenço
+RESPONSAVEL_SL = 5                      # Dra. Vitória no Sistema Santos Lourenço
 TIPO_PREPARACAO = 'PREPARACAO PARA AUDIENCIA'      # sem acento (fase 2, T1); a leitura usa LIKE 'PREPARA%AUDI%' e pega as duas grafias
 
 
@@ -1231,7 +1231,7 @@ def main():
         try:
             if no_sistema:
                 tid = TP.criar_local(
-                    TIPO_PREPARACAO, 'Preparação da audiência de %s' % br(a['data']), texto, [BRUNA_SL],
+                    TIPO_PREPARACAO, 'Preparação da audiência de %s' % br(a['data']), texto, [RESPONSAVEL_SL],
                     processo_numero=a['processo'], cliente=a['cliente'] or None,
                     prazo_fatal=prazo.isoformat(), prazo_interno=prazo.isoformat(),
                     prioridade='urgente' if alertas else 'normal',

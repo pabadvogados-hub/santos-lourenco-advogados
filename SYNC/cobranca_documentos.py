@@ -145,7 +145,7 @@ def msg(toque, nome, checklist, recebidos=None):
     # e a Vitória, pela tarefa que a varredura abre quando o card anda.
     try:
         import varredura_provas as _vp
-        checklist = [i for i in (checklist or []) if not _vp.RX_SO_BRUNA.search(i)]
+        checklist = [i for i in (checklist or []) if not _vp.RX_SO_RESPONSAVEL.search(i)]
     except Exception:
         pass
     # PEDIDO VAZIO NUNCA (Vitória, 26/10/2026): quem ja mandou alguma coisa ouve primeiro o

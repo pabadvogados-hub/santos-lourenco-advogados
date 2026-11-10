@@ -169,7 +169,7 @@ def rodar_protocolos(con, hoje, enviar, criar, eh_util=eh_util_real):
     return q
 
 
-def _da_bruna(con, onde, *args):
+def _da_responsavel(con, onde, *args):
     return con.execute(_SQL_BASE + "JOIN tarefa_responsaveis r ON r.tarefa_id=t.id AND r.usuario_id=%d WHERE %s ORDER BY t.data, t.id"
                        % (VITORIA, onde), args).fetchall()
 
@@ -179,12 +179,12 @@ def rodar_fim_do_dia(con, hoje, enviar, criar, eh_util=eh_util_real):
         print("não é dia útil: nada a fazer")
         return None
     iso, inicio = hoje.isoformat(), time.mktime(hoje.timetuple())
-    feitas = _da_bruna(con, "r.concluido_em >= ?", inicio)
-    pendentes = _da_bruna(con, "t.status='aberta' AND r.concluido_em IS NULL AND substr(t.data,1,10)=? AND COALESCE(t.origem_ref,'') NOT LIKE 'lua-%'", iso)
-    realizadas = _da_bruna(con, "t.status='aberta' AND r.concluido_em IS NULL AND EXISTS (SELECT 1 FROM tarefa_comentarios c "
+    feitas = _da_responsavel(con, "r.concluido_em >= ?", inicio)
+    pendentes = _da_responsavel(con, "t.status='aberta' AND r.concluido_em IS NULL AND substr(t.data,1,10)=? AND COALESCE(t.origem_ref,'') NOT LIKE 'lua-%'", iso)
+    realizadas = _da_responsavel(con, "t.status='aberta' AND r.concluido_em IS NULL AND EXISTS (SELECT 1 FROM tarefa_comentarios c "
                                 "WHERE c.tarefa_id=t.id AND c.texto LIKE 'O tribunal registrou a audiência%')")
     protocolados = [t for t in protocolos(con, hoje, eh_util)["feitos"] if (t["concluida_em"] or 0) >= inicio]
-    internos = _da_bruna(con, "t.status='aberta' AND r.concluido_em IS NULL AND substr(t.prazo_interno,1,10)=?", iso)
+    internos = _da_responsavel(con, "t.status='aberta' AND r.concluido_em IS NULL AND substr(t.prazo_interno,1,10)=?", iso)
     linhas = (["Seu dia em %s, conferido no Sistema Santos Lourenço." % br(iso)] + _secao("Concluídas hoje", feitas, "nenhuma")
               + _secao("Protocolados hoje pela Vitória", protocolados)
               + _secao("Com prazo do escritório vencendo hoje e ainda abertas", internos, "nenhuma")
