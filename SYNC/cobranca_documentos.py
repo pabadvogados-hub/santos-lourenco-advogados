@@ -348,7 +348,7 @@ def processar():
             print(f"[{nome}] encerrado. skip.")
             continue
 
-        # INICIAL JA PRONTA (Joab, 29/09/2026: "o Carlos Henrique pode parar de cobrar, ja
+        # INICIAL JA PRONTA (Joab, 29/09/2026: "o Heitor Valença pode parar de cobrar, ja
         # finalizamos a inicial dele"): card na Producao em Revisao, Distribuicao ou Distribuida
         # = documento nao faz mais falta. Encerra e nao manda nada.
         if _inicial_pronta(c.get("telefone")):
@@ -361,7 +361,7 @@ def processar():
         if not _garantir_checklist(nome, c):
             continue
 
-        # O QUE O CLIENTE JA DISSE QUE NAO TEM SAI DA LISTA (caso Fabio, 25/09):
+        # O QUE O CLIENTE JA DISSE QUE NAO TEM SAI DA LISTA (caso Abel, 25/09):
         # cliente sem registro escreveu duas vezes "nao tenho holerite" e
         # "ninguem vai querer ser testemunha" e a cobranca seguiu pedindo os dois.
         _podar_pelo_que_o_cliente_disse(nome, c)
@@ -384,7 +384,7 @@ def processar():
                 print(f"[{nome}] aviso: nao movi para a producao: {str(e)[:120]}")
             continue
 
-        # JA MANDOU (Anderson, 10 e 12/10/2026): pausa e confere, em vez de insistir
+        # JA MANDOU (Tobias, 10 e 12/10/2026): pausa e confere, em vez de insistir
         if c.get("pausa_ja_mandou"):
             print(f"[{nome}] pausado desde {c['pausa_ja_mandou']}: cliente disse que ja mandou "
                   "(conferencia humana). skip.")
@@ -451,7 +451,7 @@ _NEGA = (r"n[aã]o\s+(tenho|tinha|tem|tive|recebi|recebia|davam|dava|existe|exis
          r"n[aã]o\s+me\s+(deram|deu(?!\s+tempo)|entregaram|entregou|passaram|passou|mandaram)|"
          r"n[aã]o\s+(deram|entregaram)")
 
-# Cliente que diz que ja mandou (Anderson, 10 e 12/10/2026: "Mais eu já mandei", "eu mandei
+# Cliente que diz que ja mandou (Tobias, 10 e 12/10/2026: "Mais eu já mandei", "eu mandei
 # várias coisas e documentos. E sempre diz q falta algo") nao leva mais lembrete: a cobranca
 # pausa e a Dra. Vitória confere a pasta (o que a visao nao reconheceu fica como OUTRO_).
 _JA_MANDEI = (r"j[aá]\s+(te\s+|lhe\s+|os\s+|as\s+)?(mandei|enviei|encaminhei|passei)|"

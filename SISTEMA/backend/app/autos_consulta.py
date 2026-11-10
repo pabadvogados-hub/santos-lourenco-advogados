@@ -196,7 +196,7 @@ def embargos(itens, disponibilizacao, protocolos):
     }
 
 
-# Fase do processo pelos movimentos (caso Cleber, 05/10/2026). Marcos do PJe-JT, do mais
+# Fase do processo pelos movimentos (caso Romildo, 05/10/2026). Marcos do PJe-JT, do mais
 # recente para o mais antigo: o ultimo marco diz o grau. 'baixa' e 'transito' devolvem ao 1o grau.
 _MARCOS = (
     ('remessa_tst', 3, re.compile(r'REMETIDOS OS AUTOS (PARA|AO) (O )?(TST|TRIBUNAL SUPERIOR)|RECEBIDOS OS AUTOS NO TST')),
@@ -298,7 +298,7 @@ if __name__ == '__main__':
     assert nossos == [{'data': dt.date(2026, 9, 25), 'embargos': True, 'texto': 'Protocolado em 25.09.2026_ProjudPR_ED Roberto Dambros_0012740'}], nossos
     assert hora_local('2026-09-10T22:22:18.917000+00:00').strftime('%d/%m %H:%M') == '10/09 19:22'     # igual ao Projudi
     r = embargos(autos, '2026-10-02', nossos)
-    # fase pelos movimentos (caso Cleber, 05/10/2026): acordao da Turma, RO do reclamante nao provido
+    # fase pelos movimentos (caso Romildo, 05/10/2026): acordao da Turma, RO do reclamante nao provido
     trt = [
         {'tipo': 'movimento', 'data': '2026-05-10T12:00:00+00:00', 'descricao': 'Julgado(a) procedente em parte o pedido de FULANO'},
         {'tipo': 'movimento', 'data': '2026-07-01T12:00:00+00:00', 'descricao': 'Remetidos os autos para TRT da 6a Regiao'},

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""QUADRO DA CONTRATACAO: tarefa diaria da Rafa no modulo Tarefas do Sistema Santos Lourenço.
+"""QUADRO DA CONTRATACAO: tarefa diaria da equipe comercial no modulo Tarefas do Sistema Santos Lourenço.
 
 Pedido da Vitória em 01/10/2026. Todo dia util as 9h nasce para a a equipe (usuaria 10 do Sistema Santos Lourenço;
 ela nao tem usuario no ADVBOX e estamos em migracao de sistemas) uma tarefa com o quadro de quem ainda
@@ -11,7 +11,7 @@ Ordem de trabalho (Vitória, 02/10/2026):
   2. COBRAR ASSINATURA: quem esta no Contratação com o contrato no ZapSign sem assinar;
   3. RECUPERAR: quem disse que fechou e nao respondeu ou se perdeu (sem os documentos do contrato,
      Perdido na contratacao, ou de volta ao Reclamantes). Quem marcou "sem interesse" ou foi
-     desqualificado fica de fora: quem ajusta os cards e a Rafa.
+     desqualificado fica de fora: quem ajusta os cards e a equipe comercial.
 
 Regras da Vitória (01/10/2026): so ACRESCENTA a tarefa do dia; nao altera nem cancela tarefa nenhuma, nao
 move card, nao manda mensagem e nao conta comissao; tarefa nao concluida fica aberta e atrasada. Os

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Juntar dois cards do mesmo cliente, mantendo histórico e esteira.
 
-Pam, 07/11/2026: "pode juntar mantendo historico e esteira".
+07/11/2026: "pode juntar mantendo historico e esteira".
 
 O QUE ESTE MÓDULO NÃO FAZ: apagar. Em 03/11/2026 três conversas foram perdidas por SQL direto,
 e desde então a regra aqui é só acrescentar e marcar. O card que sai continua existindo, com o
@@ -15,7 +15,7 @@ palpite. Empate decide pelo card mais antigo, que é o que a esteira conhece.
 
 O QUE SE MOVE
 - **Tarefas**: sempre. É trabalho de gente esperando, e perder uma é perder um cliente.
-  (No par do Lucas, o card pequeno tinha 2 tarefas.)
+  (No par do Dimas, o card pequeno tinha 2 tarefas.)
 - **Mensagens que o principal não tem**: pelo par (hora, conteúdo). As primeiras mensagens são
   as mesmas nos dois cards, porque os dois webhooks gravaram a mesma coisa; copiar de novo
   criaria conversa repetida.

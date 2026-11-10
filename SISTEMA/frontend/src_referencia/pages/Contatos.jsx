@@ -61,7 +61,7 @@ export default function Contatos() {
 
       <form onSubmit={buscar} style={{ display: 'flex', gap: 10, maxWidth: 640, marginBottom: 22 }}>
         <input autoFocus value={q} onChange={(e) => setQ(e.target.value)}
-          placeholder="Nome ou número (ex.: Filipe Moutinho, 1198…)"
+          placeholder="Nome ou número (ex.: Hélio Paranhos, 1198…)"
           style={{ flex: 1, background: 'var(--chip)', border: '1px solid var(--border)', borderRadius: 11, padding: '11px 14px', color: 'var(--text)', outline: 'none', fontSize: 14 }} />
         <button className="btn btn-gold" disabled={carregando}>{carregando ? <span className="spin" /> : 'Buscar'}</button>
       </form>

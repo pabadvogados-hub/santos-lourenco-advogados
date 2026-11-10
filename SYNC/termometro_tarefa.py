@@ -3,7 +3,7 @@
 
 O relatorio das 14h (relatorio_leads_aferido.py, que continua intacto e e quem le a trilha de cada lead
 e reparte os leads entre as vendedoras) deixa de ir inteiro pelo WhatsApp. Agora:
-  1. abre no modulo Tarefas do Sistema Santos Lourenço UMA tarefa por vendedora (Rafaella e Marcella), com os leads
+  1. abre no modulo Tarefas do Sistema Santos Lourenço UMA tarefa por vendedora (lista USUARIOS abaixo), com os leads
      dela e os blocos comuns (em andamento, esfriou, mudar de coluna, resumo). O aviso de tarefa nova
      aparece na tela delas (bloco_aviso_tarefas.js);
   2. manda pelo WhatsApp so um aviso curto, para a Vitória e as duas, de que o termometro foi disparado.
@@ -29,7 +29,7 @@ import relatorio_leads_aferido as RA  # noqa: E402
 DB = '/opt/santoslourenco/SISTEMA/backend/sistema_sl.db'
 ORIGEM = 'termometro-leads'
 TIPO = 'ENTRAR EM CONTATO COM O LEAD'
-USUARIOS = {'Rafaella': (10, 'Rafaella Araújo'), 'Marcella': (7, 'Marcella Lourenço')}
+USUARIOS = {}  # preencher: {'Nome': (id_usuario, 'Nome no sistema')}
 INTERVALO = 20                         # segundos entre mensagens (teto de 3 por minuto)
 
 
@@ -116,7 +116,7 @@ if __name__ == '__main__':
         print(t['texto'])
     msg = aviso(tarefas)
     print('=' * 70)
-    print('AVISO NO WHATSAPP (Pam, Rafaella e Marcella):', msg)
+    print('AVISO NO WHATSAPP (equipe):', msg)
     if '--enviar' in sys.argv and '--de-arquivo' not in sys.argv:
         for tid, vend in gravar(tarefas):
             print(f'tarefa #{tid} aberta para {vend}')

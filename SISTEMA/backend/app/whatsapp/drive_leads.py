@@ -94,7 +94,7 @@ PASTA_RECLAMANTE = os.getenv('GOOGLE_PASTA_RECLAMANTE', '')   # ID da pasta-mae 
 SUBPASTA_DOCS = 'DOCUMENTOS DO CLIENTE'
 # Etiqueta que a equipe gruda no nome (na pasta ou no contato do WhatsApp) e que
 # nao faz parte do nome da pessoa. ADVOGADO fica DE FORA de proposito: "Antonio
-# Marcos Advogado" nao e o cliente Antonio Marcos.
+# Marcos Advogado" nao e o cliente Fausto Brandão.
 _RUIDO = {'ESPOLIO', 'CLIENTE', 'TRABALHISTA',
           'NOVO', 'ANTIGO', 'LEAD', 'LEADS'}
 
@@ -116,16 +116,16 @@ def _casa(partes_pessoa: list, partes_pasta: list, raros: set | None = None) -> 
     Por que tao duro: documento de um cliente dentro da pasta de outro e quebra de
     sigilo entre clientes, e nesta base isso acontece facil. Testado
     contra as 97 pastas reais, a regra frouxa (primeiro nome + QUALQUER sobrenome)
-    mandava "Jose Carlos Carvalho" pra JOSE CARLOS DE SOUZA, "Jose Ferreira da
-    Silva" pra JOSE LOPES DA SILVA e "Julio cesar Rodrigues" pra JULIO CESAR PERES
-    OLMES. Todas casavam por um sobrenome comum.
+    mandava "Benicio Arantes Prado" pra BENICIO ARANTES DE LIMA, "Benicio Torres da
+    Silva" pra BENICIO NUNES DA SILVA e "Caetano Rocha Leal" pra CAETANO ROCHA DUARTE
+    QUINTELA. Todas casavam por um sobrenome comum.
 
     Exigindo que todo nome do contato apareca na pasta, o erro vira o contrario:
     as vezes ele NAO acha a pasta e o arquivo cai na pasta de leads, que e
     exatamente onde ele ja caia antes. Errar pra menos custa um arquivo no lugar
     de sempre; errar pra mais custa sigilo.
 
-    O contato costuma ter MENOS nomes que a pasta ("Bruno Rafael" x "BRUNO RAFAEL
+    O contato costuma ter MENOS nomes que a pasta ("Teodoro Lins" x "TEODORO LINS
     DE OLIVEIRA CAMPOS"), por isso e subconjunto e nao igualdade.
     """
     if len(partes_pessoa) < 2 or len(partes_pasta) < 2:
@@ -137,9 +137,9 @@ def _casa(partes_pessoa: list, partes_pasta: list, raros: set | None = None) -> 
     if len(partes_pessoa) >= 3 or len(partes_pessoa) == len(partes_pasta):
         return True
     # Sobrou o caso magro: o contato deu SO DOIS nomes e a pasta tem mais.
-    # "Jose Carlos" cabe dentro de JOSE CARLOS DE SOUZA, mas nao prova nada: os
+    # "Benicio Arantes" cabe dentro de BENICIO ARANTES DE LIMA, mas nao prova nada: os
     # dois nomes sao comuns demais. Nesse caso exige que pelo menos um dos dois
-    # seja UNICO entre as pastas ("Julio Olmes": OLMES so existe numa).
+    # seja UNICO entre as pastas ("Caetano Quintela": QUINTELA so existe numa).
     return bool(raros and set(partes_pessoa) & raros)
 
 

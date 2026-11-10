@@ -153,7 +153,7 @@ def _so_cabecalho(texto_norm):
     t = re.sub(r'[^a-z]+', ' ', t).strip()
     return len(t) < 80
 
-# Grau pelo cabecalho da publicacao. Caso Cleber (9179526-79.2025.5.06.6228, 05/10/2026):
+# Grau pelo cabecalho da publicacao. Caso Romildo (1000101-08.2025.5.06.0016, 05/10/2026):
 # acordao da 3a Turma do TRT6 pontuou 'sentenca' e 'recurso ordinario' da ementa e virou
 # RECURSO ORDINARIO; o recurso cabivel contra acordao e o de revista (art. 896 CLT), com ED
 # em paralelo. O cabecalho (orgao, 'intimadas do acordao', 'PJe 2o grau') diz o grau.
@@ -194,7 +194,7 @@ def _corpo(texto_norm):
 
 # Atos que so existem para quem esta sendo cobrado. Com o cliente no polo
 # ATIVO (autor, reclamante, exequente) nao ha contestacao, pagamento voluntario
-# nem impugnacao ao cumprimento nossos (casos reais: Jose Carlos, Helenice,
+# nem impugnacao ao cumprimento nossos (casos reais: Benicio Arantes, Doralice,
 # Rosemar 0004255-15).
 _SO_DO_PASSIVO = {'CONTESTACAO', 'PAGAMENTO VOLUNTARIO (CUMPRIMENTO)',
                   'IMPUGNACAO AO CUMPRIMENTO DE SENTENCA', 'EMBARGOS A EXECUCAO',
@@ -291,7 +291,7 @@ def classificar(intimacao: dict, titularidade: dict | None = None) -> dict:
     adversos_cad = _lista(_tit_pre.get('adversos')) or _lista(_tit_pre.get('parte_adversa'))
     # Regra 3 da calibracao: sem polo no cadastro, a propria publicacao diz quem
     # e quem (cabecalho do PJe ou do e-SAJ). Banco do caso D x empresa D e a
-    # interdicao do Sergio (01/10/2026) so se resolvem assim.
+    # interdicao do Saulo (01/10/2026) so se resolvem assim.
     polo_inferido = None
     if clientes_cad:
         polo_pub, fonte_polo = TT.polo_pelo_cabecalho(
@@ -332,7 +332,7 @@ def classificar(intimacao: dict, titularidade: dict | None = None) -> dict:
         confianca = 0.30
         avisos.append('Nenhum gatilho do catalogo bateu — classificado por fallback, conferir')
 
-    # Grau: recurso de sentenca nao cabe contra acordao (caso Cleber). O texto inteiro
+    # Grau: recurso de sentenca nao cabe contra acordao (caso Romildo). O texto inteiro
     # (com cabecalho) diz o grau; o corpo, usado nos gatilhos, nao.
     grau = grau_do_texto(tnorm)
     troca_grau = _SO_NO_1O_GRAU.get(ramo, {}).get(ato)
@@ -579,18 +579,18 @@ if __name__ == '__main__':   # bateria rapida: python -m app.controladoria_motor
         ok += bom
         print('%s  %-28s -> %s (esperado %s)' % ('OK  ' if bom else 'FALHA', nome, got, esperado))
     print('marcador (s):', _norm('Recebo o(s) Agravo(s) de Instrumento, intime(m)-se para contraminutar(em)'))
-    # grau pelo cabecalho (caso Cleber, 05/10/2026): acordao de Turma nao abre RO, abre RR + ED
+    # grau pelo cabecalho (caso Romildo, 05/10/2026): acordao de Turma nao abre RO, abre RR + ED
     cleber = ('PODER JUDICIARIO JUSTICA DO TRABALHO TRIBUNAL REGIONAL DO TRABALHO DA 6a REGIAO TERCEIRA TURMA '
-              'Relatora: MARIA CLARA ROT 9179526-79.2025.5.06.6228 RECORRENTE: FULANO RECORRIDO: EMPRESA LTDA '
+              'Relatora: MARIA CLARA ROT 1000101-08.2025.5.06.0016 RECORRENTE: FULANO RECORRIDO: EMPRESA LTDA '
               'INTIMACAO DESTINATARIO: EMPRESA LTDA [Terceira Turma] Ficam as partes intimadas do acordao proferido '
               'no presente processo. Acesso ao sistema PJe-JT - 2o grau. EMENTA: RECURSO ORDINARIO E RECURSO ADESIVO. '
               'Recursos ordinarios interpostos contra sentenca que julgou parcialmente procedente a reclamacao. '
               'RECURSO DAS RECLAMADAS PROVIDO. RECURSO DO RECLAMANTE DESPROVIDO.')
-    sent = ('PODER JUDICIARIO JUSTICA DO TRABALHO 16a VARA DO TRABALHO DO RECIFE ATOrd 9179526-79.2025.5.06.6228 '
+    sent = ('PODER JUDICIARIO JUSTICA DO TRABALHO 16a VARA DO TRABALHO DO RECIFE ATOrd 1000101-08.2025.5.06.0016 '
             'SENTENCA. Julgo procedente em parte a reclamacao e condeno a reclamada ao pagamento de horas extras.')
     for nome, texto, esperado in (('acordao de Turma do TRT -> RR', cleber, 'RECURSO DE REVISTA'),
                                   ('sentenca da Vara -> RO', sent, 'RECURSO ORDINARIO')):
-        r = classificar({'processo': '9179526-79.2025.5.06.6228', 'tribunal': 'TRT6', 'texto': texto, 'data': '2026-10-05T03:00:00+00:00'})
+        r = classificar({'processo': '1000101-08.2025.5.06.0016', 'tribunal': 'TRT6', 'texto': texto, 'data': '2026-10-05T03:00:00+00:00'})
         got = r.get('ato')
         bom = got == esperado and (esperado != 'RECURSO DE REVISTA' or any(p.get('ato') == 'EMBARGOS DE DECLARACAO' and p.get('paralelo') for p in r.get('prazos') or []))
         ok += bom

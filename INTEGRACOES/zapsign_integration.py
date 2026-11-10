@@ -84,7 +84,7 @@ def normalizar_telefone(tel):
 
 
 # PADRAO DA ASSINATURA (Vitória, 23/10/2026): o cliente desenha na tela e confirma com o codigo que
-# chega no WHATSAPP, nao mais por SMS. Nasceu do caso Alex Alves Vieira, que recebeu seis SMS,
+# chega no WHATSAPP, nao mais por SMS. Nasceu do caso Ivo Pacheco Neri, que recebeu seis SMS,
 # abriu o contrato doze vezes e nao conseguiu assinar. A ZapSign documenta que o codigo por
 # WhatsApp chega com mais confianca que o SMS, e o nosso publico le WhatsApp. Vale para o que
 # nascer daqui para frente: documento que ja esta no ZapSign segue como esta.
@@ -134,7 +134,7 @@ def signatario_vitoria_api():
     em = os.getenv('ZAPSIGN_VITORIA_EMAIL') or None
     return {
         # fica em 'assinaturaTela' de proposito: ela assina pela API, nao recebe link nem codigo
-        'name': 'Vitória Karen Barbosa dos Santos Lourenço',
+        'name': os.getenv('ZAPSIGN_VITORIA_NOME') or 'Vitória Karen Barbosa dos Santos Lourenço',
         'email': em,
         'phone_country': '55',
         'phone_number': None,
@@ -201,7 +201,7 @@ def criar_documento(nome, pdf_base64, signers, folder_path='/', external_id='',
     # criar_documento() direto, sem passar por enviar_documento(). Posto la,
     # o fiscal deixaria o Desbloqueio GR inteiro de fora.
     #
-    # Nasceu do CT 294/2026 (Carlos Henrique), assinado em 22/09/2026 com os
+    # Nasceu do CT 100/2026 (Heitor Valença), assinado em 22/09/2026 com os
     # {{campos}} a mostra. Medido em 71 documentos reais antes de subir: 65
     # aprovados, 6 barrados, e os 6 sao os do incidente.
     #
@@ -333,7 +333,7 @@ def enviar_para_zapsign(drive_service, nome_cliente, docs_gerados, dados_cliente
             continue
 
         print(f'   Enviando: {doc_nome}...')
-        # telefone SEMPRE no cadastro do signatario (no Jose, 12/08, ele ia
+        # telefone SEMPRE no cadastro do signatario (no Benicio, 12/08, ele ia
         # vazio e o documento ficava sem dono identificavel), mas quem fala com
         # o cliente e a nossa regua pela Z-API: WhatsApp do ZapSign desligado
         # para nao chegarem duas mensagens diferentes do mesmo contrato.
@@ -363,7 +363,7 @@ def enviar_para_zapsign(drive_service, nome_cliente, docs_gerados, dados_cliente
                 pam_token = None
                 for s in out['sign_urls']:
                     nm = (s.get('signatario') or '').lower()
-                    if 'vitoria' in nm or 'abellan' in nm:
+                    if nm == signatario_vitoria_api()['name'].lower():
                         pam_token = s.get('token')
                         break
                 if pam_token:
@@ -542,8 +542,8 @@ def atualizar_signatario(signer_token, **campos):
 
     Serve para o que a gente aprendeu em 23/10/2026: trocar o auth_mode de quem trava na tela de
     desenho (para 'tokenWhatsapp', so o codigo) e preencher o telefone de documento que nasceu
-    sem ele, caso em que o cliente nunca teve como ser avisado (Alex Alves Vieira e os documentos
-    corrigidos do Marcelo Martini).
+    sem ele, caso em que o cliente nunca teve como ser avisado (Ivo Pacheco Neri e os documentos
+    corrigidos do Valdo Sarmento).
 
     Campos aceitos pela API: name, email, phone_country, phone_number, auth_mode, lock_name,
     lock_email, lock_phone, qualification, external_id, send_automatic_whatsapp,

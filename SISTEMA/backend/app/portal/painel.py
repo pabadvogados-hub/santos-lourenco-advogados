@@ -12,7 +12,7 @@ DDL = """CREATE TABLE IF NOT EXISTS portal_painel_ficha (
     cliente_id INTEGER,
     valor_causa REAL,          -- sobrepoe o do sistema quando informado
     valor_pago REAL,           -- o que a EMPRESA desembolsou. So o escritorio sabe.
-    parte_contraria TEXT,      -- nome curto para o grafico ("Leandro de Brito")
+    parte_contraria TEXT,      -- nome curto para o grafico ("Fulano de Tal")
     situacao TEXT,             -- "Acordo quitado - arquivado"
     categoria TEXT,            -- ver CATEGORIAS: como o processo entra na carteira
     encerrado_em TEXT,         -- AAAA-MM-DD, para a curva acumulada

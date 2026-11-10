@@ -57,7 +57,7 @@ class LeituraDaConversa(object):
 
     A chave é a CONVERSA e a MÍDIA, nunca o nome do cliente. Era o nome que
     fazia a varredura recomeçar do zero quando o cliente era renomeado, e foi
-    isso que duplicou a pasta inteira do Carlos no Drive.
+    isso que duplicou a pasta inteira do Heitor no Drive.
     """
 
     def __init__(self, caminho):

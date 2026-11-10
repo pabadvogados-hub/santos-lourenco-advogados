@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Claude pelo PLANO MAX no lugar da API (Pam, 07/10/2026).
+"""Claude pelo PLANO MAX no lugar da API (07/10/2026).
 
 Quem chamava `anthropic.Anthropic(...).messages.create(...)` passa a chamar
 `claude_plano.Anthropic(origem='...').messages.create(...)` com os mesmos argumentos: a chamada vai para

@@ -1648,7 +1648,7 @@ def entregar_consultoria(c, tarefa_relatorio_id, titulo, relatorio, links=None, 
         portal = cur.lastrowid
     elif not portal_cliente_id:
         avisos.append('cliente do Portal nao informado: o caso nao entrou no Portal')
-    corpo = ('Validar a devolutiva da consultoria de %s: "%s".\nBruna valida o conteudo juridico; Vitória valida e e a responsavel '
+    corpo = ('Validar a devolutiva da consultoria de %s: "%s".\nresponsável valida o conteudo juridico; Vitória valida e e a responsavel '
              'por dar a devolutiva ao cliente (e-mail e WhatsApp do escritorio), de acordo com o relatorio abaixo. Cada uma '
              'conclui a sua parte.\n\nRELATORIO DA AUTOMACAO:\n%s%s'
              % (t.get('cliente') or 'cliente', titulo, (relatorio or '').strip(), ('\n' + _bloco_links(links)) if links else ''))
@@ -2369,8 +2369,8 @@ if __name__ == '__main__':
     mp = dict(m, parceiro={'nome': 'Dr. Parceiro Exemplo', 'modo': 'encaminhar'})
     relp = cadastrar(b, {'id': 950, 'processo': '0010'}, mp, r6['etapas'], 'x')
     assert [x['fila'] for x in relp['tarefas']] == ['parceiro', None], relp
-    erp = entregar_recado_parceiro(b, tid_de(b, 'intim:950', 'RECADO PARA PARCEIRO'), 'Encaminhado ao Dr. Felipe em 02/10 10h.')
-    registrar_resposta(b, 'intim:950', 'Dr. Felipe', 'Ciente, protocolo ate quarta.')
+    erp = entregar_recado_parceiro(b, tid_de(b, 'intim:950', 'RECADO PARA PARCEIRO'), 'Encaminhado ao Dr. Hélio em 02/10 10h.')
+    registrar_resposta(b, 'intim:950', 'Dr. Hélio', 'Ciente, protocolo ate quarta.')
     fp = b.execute("SELECT descricao, status FROM tarefas WHERE cadeia='intim:950' AND tipo='ACOMPANHAMENTO'").fetchone()
     assert erp['fechou_a_propria'] and 'ENVIOU AO PARCEIRO' in fp['descricao'] and 'protocolo ate quarta' in fp['descricao'] and fp['status'] == 'aberta'
 

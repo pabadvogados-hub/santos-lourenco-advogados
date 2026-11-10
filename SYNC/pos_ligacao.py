@@ -11,7 +11,7 @@ Hoje a corrente esta inteira menos o ultimo elo:
 Depois disso e tudo na mao: mover o card (que e o gesto que DRENA a fila), anotar
 o que ficou combinado, marcar o retorno e preencher a ficha. O numero mostra que
 nao acontece: 1.201 leads classificados, 78 quentes, e 10 fichas preenchidas.
-O caso do Janilton (21/09) precisou de um cron escrito a mao so para lembrar de
+O caso do Juvenal (21/09) precisou de um cron escrito a mao so para lembrar de
 ligar na segunda seguinte.
 
 Este script le a transcricao da ligacao e escreve de volta:

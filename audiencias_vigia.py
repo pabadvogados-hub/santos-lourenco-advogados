@@ -3,10 +3,10 @@
 """Vigia de audiencias: onde a audiencia mora de verdade, e a providencia da
 Dra. Vitória uma semana antes.
 
-POR QUE EXISTE. Em 14/09/2026 o Gilmar (9267903-16.2025.5.18.1062, expectativa
+POR QUE EXISTE. Em 14/09/2026 o Ataíde (1000303-41.2025.5.18.0051, expectativa
 de R$ 1,79 mi) nao compareceu a audiencia UNA. O robo de lembretes rodava as 7h
 todo dia desde 03/09 e nunca mandou nada: ele le a agenda Google do escritorio,
-e a equipe registra audiencia como TAREFA no ADVBOX. A do Gilmar estava no
+e a equipe registra audiencia como TAREFA no ADVBOX. A do Ataíde estava no
 ADVBOX desde 24/08; a agenda tinha 3 audiencias, nenhuma dele. O log dizia
 "enviados: 0 | sem destinatario: 0", o que parece "nada a fazer".
 
@@ -156,7 +156,7 @@ def datas_de_audiencia(txt, referencia=None):
 
     O ano de "06.10" sai da data do COMENTARIO, nao de hoje. Deduzir a partir
     de hoje transformou audiencia ja realizada em audiencia do ano que vem: o
-    Leonardo apareceu com audiencia em 08/09/2027.
+    Severino apareceu com audiencia em 08/09/2027.
     '''
     t = str(txt or '')
     if 'AUDI' not in norm(t):
@@ -1200,7 +1200,7 @@ def main():
         "SELECT processo, data FROM audiencia_registro WHERE status IN "
         "('cancelada','realizada','redesignada','substituida')")}
     # de 1 a 7 dias: no proprio dia a tarefa nao da tempo de reagir a nada, e so
-    # vira ruido na fila (o vigia entrou no ar no dia da audiencia do Gilmar)
+    # vira ruido na fila (o vigia entrou no ar no dia da audiencia do Ataíde)
     janela = [a for a in auds
               if 1 <= (dt.date.fromisoformat(a['data']) - HOJE).days <= DIAS_ANTES
               and (a['processo'], a['data']) not in feitas

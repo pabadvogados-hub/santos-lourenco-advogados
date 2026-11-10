@@ -3,7 +3,7 @@
 """Relatorio de sexta para a controladoria: as audiencias da semana seguinte.
 
 Pedido da Dra. Vitória em 14/09/2026, depois de duas faltas de reclamante em
-uma semana (Leonardo em 08/09, Gilmar em 14/09). Toda sexta a Vitória recebe no
+uma semana (Severino em 08/09, Ataíde em 14/09). Toda sexta a Vitória recebe no
 WhatsApp a rotina de audiencias da proxima semana, com o que falta em cada uma.
 
 De onde vem: `audiencia_registro`, que o audiencias_vigia.py atualiza as 6h50

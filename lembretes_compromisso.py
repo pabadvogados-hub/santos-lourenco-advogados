@@ -206,7 +206,7 @@ def main():
         return 1
 
     # Audiencias registradas no ADVBOX e nas intimacoes, que nunca foram postas
-    # na agenda. Sem isto o robo ficou mudo por 11 dias e o Gilmar faltou.
+    # na agenda. Sem isto o robo ficou mudo por 11 dias e o Ataíde faltou.
     try:
         na_agenda = {(numero_do_processo(e), e.get("data")) for e in eventos}
         for r in con.execute(

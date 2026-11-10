@@ -15,7 +15,7 @@ assinatura`, mas ela tem tres limites que deixaram o furo aberto:
   2. So conhece os `{{campos}}` do modelo. Nao ve "[CONFIRMAR: ...]", "a
      confirmar", "nao informado", XXX e companhia.
   3. **Nao fica no caminho do envio.** Quem chama, chama; quem esquece, envia.
-     Foi assim no CT 294/2026 do Carlos Henrique, assinado em 22/09/2026 com
+     Foi assim no CT 100/2026 do Heitor Valença, assinado em 22/09/2026 com
      os `{{...}}` visiveis.
 
 Aqui o fiscal le o ARQUIVO que vai ser enviado, seja ele qual for, e fica no
@@ -236,7 +236,7 @@ def conferir_bytes(pdf_bytes, nome="documento"):
     `zapsign_integration.criar_documento`, que e o funil por onde TUDO passa.
 
     **O nome tambem e conferido**, e nao e detalhe: no incidente de 22/09 o
-    arquivo se chamava "Carlos (sobrenome nao informado na transcricao) -
+    arquivo se chamava "Heitor (sobrenome nao informado na transcricao) -
     Contrato". O nome aparece para o cliente na tela do ZapSign e no e-mail,
     entao recado de automacao no nome e tao grave quanto no corpo.
     """

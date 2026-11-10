@@ -360,7 +360,7 @@ def gerar_documentos_cliente(drive_service, docs_service, nome_cliente: str,
             # ATENCAO (24/09/2026): era aqui que o contrato saia com os
             # {{campos}} do modelo. O `if valor` pulava o campo vazio e o
             # marcador FICAVA no documento, que ia assinado para o cliente
-            # (CT. 294/2026, Carlos Henrique). Agora campo vazio tambem gera
+            # (CT. 100/2026, Heitor Valença). Agora campo vazio tambem gera
             # pedido: o OPCIONAL some limpo e o ESSENCIAL e barrado na
             # conferencia logo abaixo.
             # Cidade sem divisao por bairros (Vitória, 01/10/2026): com a marca
@@ -594,7 +594,7 @@ def _apagar_campo_opcional(chave):
 
 _RECADO_NO_DOCUMENTO = (
     # recado da automacao que NUNCA pode aparecer no documento do cliente.
-    # Em 02/10/2026 o contrato CT. 301/2026 (Adriano) foi assinado com
+    # Em 02/10/2026 o contrato CT. 101/2026 (Clóvis) foi assinado com
     # "em desfavor de Nao identificada - Reclamante relatou ... (nome e
     # CPF/CNPJ nao informados na transcricao); necessario confirmar". Nao havia
     # {{marcador}} sobrando: havia TEXTO, e a conferencia so olhava marcador.

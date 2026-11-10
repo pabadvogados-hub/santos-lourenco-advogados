@@ -57,11 +57,11 @@ _E1 = (_VEND[0][1] if len(_VEND) > 0 and len(_VEND[0]) > 1 else os.getenv('COMER
 _E2 = (_VEND[1][1] if len(_VEND) > 1 and len(_VEND[1]) > 1 else os.getenv('COMERCIAL_VENDEDOR_2_EMAIL') or '')
 EMAIL_VENDEDORA = {e.strip().lower(): n for e, n in ((_E1, V1), (_E2, V2)) if e.strip()}
 TAXA_CONTRATO = {V1: 'com_v1', V2: 'com_v2'}
-PABCOIN_INICIO = date.fromisoformat(os.getenv('MOEDAS_INICIO', '2026-11-01'))   # programa de moedas da equipe: conta a partir daqui
-PABCOIN_VALOR = {'lig': 1, 'contrato': 10, 'dist': 20, 'manha': 3, 'dia': 5, 'seq3': 10, 'seq5': 25}
-PABCOIN_NIVEIS = [(0, 'Bronze', 1.0), (300, 'Prata', 1.1), (500, 'Ouro', 1.25), (800, 'Diamante', 1.5)]
-PABCOIN_PATAMARES = [(100, 'Pausa'), (300, 'Cuidado'), (700, 'Encontro'), (1500, 'Grande experiência')]   # trilha de recompensas
-PABCOIN_EXEMPLOS = {'Pausa': 'café especial, cinema, livraria, sobremesa', 'Cuidado': 'unha, massagem, dia de beleza, almoço especial',
+MOEDAS_EQUIPE_INICIO = date.fromisoformat(os.getenv('MOEDAS_INICIO', '2026-11-01'))   # programa de moedas da equipe: conta a partir daqui
+MOEDAS_EQUIPE_VALOR = {'lig': 1, 'contrato': 10, 'dist': 20, 'manha': 3, 'dia': 5, 'seq3': 10, 'seq5': 25}
+MOEDAS_EQUIPE_NIVEIS = [(0, 'Bronze', 1.0), (300, 'Prata', 1.1), (500, 'Ouro', 1.25), (800, 'Diamante', 1.5)]
+MOEDAS_EQUIPE_PATAMARES = [(100, 'Pausa'), (300, 'Cuidado'), (700, 'Encontro'), (1500, 'Grande experiência')]   # trilha de recompensas
+MOEDAS_EQUIPE_EXEMPLOS = {'Pausa': 'café especial, cinema, livraria, sobremesa', 'Cuidado': 'unha, massagem, dia de beleza, almoço especial',
                     'Encontro': 'jantar a dois, teatro, show, passeio', 'Grande experiência': 'dia de spa, um curso, um eletrônico'}
 TAREFA_PROTOCOLO = int(os.getenv('COMERCIAL_TAREFA_PROTOCOLO', '0') or 0)   # tipo de tarefa PROTOCOLO no sistema juridico (0 = nao usa)
 CONV = 'onsite_conversion.messaging_conversation_started_7d'
@@ -468,7 +468,7 @@ def _fase(card):
 
 
 def _nome_limpo(c):
-    """Nome do contrato, ou o do WhatsApp quando o do contrato saiu com placeholder (ex.: 'Carlos sobrenome nao informado')."""
+    """Nome do contrato, ou o do WhatsApp quando o do contrato saiu com placeholder (ex.: 'Heitor sobrenome nao informado')."""
     nc = c.get('nome_contrato') or ''
     return c.get('nome_wa') or nc if (not nc or PLACEHOLDER.search(' '.join(_norm(nc)))) else nc
 
@@ -1859,7 +1859,7 @@ def montar_mesa(vendedora, forcar=False, produto='trabalhista'):
     pend = sorted([c for c in desde if not c['liberado'] and not c['perdido']], key=lambda c: c['pedido'])
     marcos = [(0.25, 'bronze', '🥉'), (0.5, 'prata', '🥈'), (0.75, 'ouro', '🥇'), (1.0, 'troféu', '🏆')]
     pct_meta = len(do_mes) / meta if meta else 0
-    # para a carteira PABcoin: todos os contratos dela (os perdidos tambem: a moeda do Fechou nao volta) e as liberacoes
+    # para a carteira moedas da equipe: todos os contratos dela (os perdidos tambem: a moeda do Fechou nao volta) e as liberacoes
     pc = {'contratos': [(c['cid'], c['data']) for c in contratos if c['vendedora'] == vendedora and c.get('data')],
           'lib': [(c['cid'], c['liberado_em']) for c in minhas if c['liberado'] and c['liberado_em']]}
     return {
@@ -1919,14 +1919,14 @@ def _slcoin(vendedora, pcs, metas=()):
     Nivel do mes pelo que ganhou no mes anterior: Bronze, Prata (300) x1,1, Ouro (500) x1,25, Diamante (800) x1,5.
     Resgates sao da caixa de RH (ainda nao existem)."""
     agora = datetime.now()
-    hoje, ini = agora.date(), PABCOIN_INICIO
+    hoje, ini = agora.date(), MOEDAS_EQUIPE_INICIO
     if hoje < ini:
         return {'ativo': False, 'inicio': ini.strftime('%d/%m')}
     con = _con()
     try:
         ligs = [x for x in _ligacoes(con, ini - timedelta(days=21), hoje) if x['quem'] == vendedora and x['quando']]
         email = [k for k, v in EMAIL_VENDEDORA.items() if v == vendedora]
-        try:                                          # ficha do RH (contrato de dados PABcoin, 22/10): colaborador_id
+        try:                                          # ficha do RH (contrato de dados moedas da equipe, 22/10): colaborador_id
             rh = con.execute('select id from rh_colaboradores where lower(email)=?', (email[0],)).fetchone() if email else None
         except sqlite3.Error:
             rh = None
@@ -1960,7 +1960,7 @@ def _slcoin(vendedora, pcs, metas=()):
     ev = []
     def soma(id_, d, tipo, desc, quando=None):
         vence = date(d.year + (d.month + 5) // 12, (d.month + 5) % 12 + 1, min(d.day, 28))   # vale 6 meses (regulamento)
-        ev.append({'id': id_, 'dia': d, 'tipo': tipo, 'moedas': PABCOIN_VALOR[tipo], 'desc': desc,
+        ev.append({'id': id_, 'dia': d, 'tipo': tipo, 'moedas': MOEDAS_EQUIPE_VALOR[tipo], 'desc': desc,
                    'hora': quando.strftime('%H:%M') if quando else '', 'expira_em': vence.isoformat()})
     for d in sorted(dia):
         if d < ini:
@@ -1996,9 +1996,9 @@ def _slcoin(vendedora, pcs, metas=()):
                 seq = 0                                       # hoje ainda pode cumprir: so quebra depois que o dia passa
             if d == hoje:
                 missoes = [{'id': 'manha', 'nome': 'Começo forte', 'desc': '%d ligações até as 11h' % am,
-                            'feito': e['manha'], 'alvo': am, 'moedas': PABCOIN_VALOR['manha'], 'ok': ok_m},
+                            'feito': e['manha'], 'alvo': am, 'moedas': MOEDAS_EQUIPE_VALOR['manha'], 'ok': ok_m},
                            {'id': 'dia', 'nome': 'Dia cheio', 'desc': '%d atendidas hoje (mais que a sua média)' % ad,
-                            'feito': e['at'], 'alvo': ad, 'moedas': PABCOIN_VALOR['dia'], 'ok': ok_d}]
+                            'feito': e['at'], 'alvo': ad, 'moedas': MOEDAS_EQUIPE_VALOR['dia'], 'ok': ok_d}]
         d += timedelta(days=1)
     # nivel e multiplicador de cada mes pelo que ganhou (sem multiplicador) no mes anterior
     base = {}
@@ -2006,8 +2006,8 @@ def _slcoin(vendedora, pcs, metas=()):
         k = x['dia'].strftime('%Y-%m')
         base[k] = base.get(k, 0) + x['moedas']
     def nivel(v):
-        n = PABCOIN_NIVEIS[0]
-        for lim in PABCOIN_NIVEIS:
+        n = MOEDAS_EQUIPE_NIVEIS[0]
+        for lim in MOEDAS_EQUIPE_NIVEIS:
             if v >= lim[0]:
                 n = lim
         return n
@@ -2018,7 +2018,7 @@ def _slcoin(vendedora, pcs, metas=()):
         prev = (date(int(k[:4]), int(k[5:]), 1) - timedelta(days=1)).strftime('%Y-%m')
         saldo += int(round(v * nivel(base.get(prev, 0))[2]))
     atual, este = nivel(base.get(ant_mes, 0)), base.get(mes, 0)
-    prox = [n for n in PABCOIN_NIVEIS if n[0] > este]
+    prox = [n for n in MOEDAS_EQUIPE_NIVEIS if n[0] > este]
     # atendidas por contrato nas ultimas 2 semanas, os dois produtos juntos (para o aviso: quanto falta para o proximo)
     i14 = hoje - timedelta(days=13)
     at14 = sum(v['at'] for k, v in dia.items() if k >= i14)
@@ -2026,17 +2026,17 @@ def _slcoin(vendedora, pcs, metas=()):
     hoje_ev = [dict(x, dia=x['dia'].isoformat()) for x in ev if x['dia'] == hoje]
     # conquistas: a tela explode em moedas na primeira vez que cada uma aparece
     conq = []
-    for lim, nome_n, mult_n in PABCOIN_NIVEIS[1:]:
+    for lim, nome_n, mult_n in MOEDAS_EQUIPE_NIVEIS[1:]:
         if este >= lim:
             conq.append({'id': 'nivel:%s:%s' % (mes, nome_n), 'tipo': 'nivel', 'titulo': 'Nível %s destravado!' % nome_n,
-                         'sub': 'Você juntou %d PABcoins em %s. No mês que vem, cada moeda sua vale ×%s.'
+                         'sub': 'Você juntou %d moedas da equipe em %s. No mês que vem, cada moeda sua vale ×%s.'
                                 % (este, mes_rot(mes).lower(), str(mult_n).replace('.', ','))})
     for prod, mm, palavra in metas:
         if mm.get('meta') and (mm.get('feitos') or 0) >= mm['meta']:
             conq.append({'id': 'meta:%s:%s' % (prod, mm.get('mes')), 'tipo': 'meta', 'titulo': 'Meta batida!',
                          'sub': '%d de %d %s em %s. Daqui pra frente é recorde!'
                                 % (mm['feitos'], mm['meta'], palavra, (mm.get('rotulo') or '').lower())})
-    for lim, nome_p in PABCOIN_PATAMARES:              # trilha do RH (SPEC_MAPA_PABCOIN, 22/10): uma vez por patamar
+    for lim, nome_p in MOEDAS_EQUIPE_PATAMARES:              # trilha do RH (especificacao das moedas, 22/10): uma vez por patamar
         if saldo >= lim:
             conq.append({'id': 'patamar:%s' % nome_p, 'tipo': 'patamar', 'titulo': 'Você chegou ao patamar %s!' % nome_p,
                          'sub': 'Sua trilha acendeu mais um degrau. Continue juntando para viver a experiência que você escolher.'})
@@ -2047,8 +2047,8 @@ def _slcoin(vendedora, pcs, metas=()):
             'missoes': missoes, 'sequencia': seq, 'hoje': hoje_ev, 'ganhas_hoje': sum(x['moedas'] for x in hoje_ev),
             'conquistas': conq,
             # trilha de premios (patamares e exemplos configurados acima): quanto falta para cada um
-            'trilha': [{'nome': n_, 'lim': l_, 'ok': saldo >= l_, 'falta': max(0, l_ - saldo), 'exemplos': PABCOIN_EXEMPLOS.get(n_, '')}
-                       for l_, n_ in PABCOIN_PATAMARES],
+            'trilha': [{'nome': n_, 'lim': l_, 'ok': saldo >= l_, 'falta': max(0, l_ - saldo), 'exemplos': MOEDAS_EQUIPE_EXEMPLOS.get(n_, '')}
+                       for l_, n_ in MOEDAS_EQUIPE_PATAMARES],
             'at_hoje': dia.get(hoje, {}).get('at', 0),
             'at_por_contrato': round(at14 / c14) if c14 and at14 else None}
 

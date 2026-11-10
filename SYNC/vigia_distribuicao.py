@@ -83,7 +83,7 @@ PORTAL = 'https://sistema.santoslourenco.adv.br/portal'
 TRILHA_REGUA, PASSO_REGUA = 'A', 'A1'
 # Janela de envio: padrao 9h-18h em dia util (regra da regua do Portal). Para um teste
 # pontual fora dela: DISTRIBUICAO_JANELA=0-23 na frente do comando.
-# JANELA DE 9h AS 20h (Vitória, 21/10/2026). Era 9h as 18h, e o caso do Cleiton mostrou o custo:
+# JANELA DE 9h AS 20h (Vitória, 21/10/2026). Era 9h as 18h, e o caso do Edgar mostrou o custo:
 # a Vitória registrou a distribuicao as 18h17 e o aviso ao cliente, com o card, ia esperar o
 # dia seguinte. Decisao dela: "ao invés de ser das 9h às 18h, vamos fazer das 9h às 20h".
 JANELA = tuple(int(x) for x in os.getenv('DISTRIBUICAO_JANELA', '9-20').split('-')[:2])
@@ -199,7 +199,7 @@ def fase_revisao(con, estado, aplicar):
 
     O motor da producao ja move quando e ele quem cria a tarefa. O furo e a tarefa que nasce
     FORA do motor (na mao ou pelo ADVBOX): a peca vai para a Vitória e o card fica para tras.
-    Caso que mostrou isso: Renan Medeiros, tarefa aberta com prazo 09/10 e card parado.
+    Caso que mostrou isso: Otacílio Prates, tarefa aberta com prazo 09/10 e card parado.
     """
     print('')
     print('-- 0. tarefa de revisão aberta com o card ainda na produção')
@@ -266,7 +266,7 @@ def numeros_no_advbox(con, limite=10):
     """(Vitória, 08/10/2026) Ponte temporária: o número sai do ADVBOX enquanto ele existir.
 
     A sincronização das 5h atualiza fase e etapa mas NÃO copia o número, e a tarefa nem
-    sempre traz. Foi o que travou o Fabio e o Augusto: protocolados, com número no ADVBOX
+    sempre traz. Foi o que travou o Abel e o Silvano: protocolados, com número no ADVBOX
     e card parado aqui. Quando o ADVBOX sair, basta apagar esta função: o número passa a
     ser digitado na tela de processos e o resto do vigia continua igual.
     """
@@ -423,7 +423,7 @@ def dados_da_mensagem(con, processo_id, numero, cliente):
         vara = tribunal_do_numero(numero)
     empresa = (adversa['nome'] if adversa and adversa['nome'] else '').strip()
     # NOME CORTADO NO MEIO (achado da Vitória em 21/10/2026): o corte cego em 60 caracteres mandou ao
-    # Cleiton "contra a GERSON PIRES, JAYLLA BARBOSA VIEIRA,CEREALISTA TUPA LTDA., C". Quando a
+    # Edgar "contra a FULANO DE TAL, BELTRANA DE TAL,CEREALISTA EXEMPLO LTDA., C". Quando a
     # equipe escreve varias reclamadas num campo so, a mensagem passa a dizer os nomes que cabem
     # INTEIROS e fecha com "e outras"; nome unico comprido fecha com reticencias, nunca no meio
     # de uma palavra.
@@ -616,7 +616,7 @@ def rodar(aplicar, so_numero=False):
         dados = dados_da_mensagem(con, p['id'], p['numero'], cliente)
         # (Vitória, 08/10/2026) cliente com mais de um processo: o card e um so, entao o robo
         # move mas NAO manda, porque a mensagem diria que "a sua acao entrou" e o cliente
-        # tem outra ainda em revisao. Foi o caso do Augusto (JSL distribuida, Freitas nao).
+        # tem outra ainda em revisao. Foi o caso do Silvano (TRANSPORTADORA A distribuida, TRANSPORTADORA B nao).
         # (21/10/2026) CONTA CASO, NAO LINHA DE BANCO: o Jesse e o Oziel tinham o mesmo caso
         # duplicado em jur_processos (registro sem numero e sem parte contraria, ou o mesmo
         # numero duas vezes) e o freio achou "2 processos ativos" onde havia um. Numero igual

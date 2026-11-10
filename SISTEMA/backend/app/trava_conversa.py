@@ -4,8 +4,8 @@
 O DEFEITO, medido em 07/11/2026
 185 números têm mais de um card no CRM, e **todos os 185 pares nasceram com menos de um minuto
 de diferença**, a maioria com zero segundos. A mesma primeira mensagem do cliente aparece nos
-dois cards. Cinco desses pares são de cliente FECHADO (Jackson, Lucas Natanael, Marlon, João
-Castro, Cleyton): a vendedora atende num card enquanto a esteira anda no outro, e o cliente
+dois cards. Cinco desses pares são de cliente FECHADO (Haroldo, Dimas Natan, Nivaldo, Ulisses
+Correa, Otoniel): a vendedora atende num card enquanto a esteira anda no outro, e o cliente
 pode receber a mesma coisa duas vezes.
 
 A CAUSA

@@ -2,7 +2,7 @@
 """A Lua no Hermes: o Hermes pensa, o Sistema Santos Lourenço age (fatia 1, Linear PAM-32).
 
 POR QUE
-A Lua de hoje enxerga só as últimas 16 mensagens e esquece o que a Bruna ensinou: "nunca no
+A Lua de hoje enxerga só as últimas 16 mensagens e esquece o que a responsável ensinou: "nunca no
 ADVBOX" foi repetido três vezes. No Hermes ela ganha memória, skills e a alma da IVA. As mãos
 continuam no Sistema Santos Lourenço: toda ação passa pelo executar() de hoje, com as travas de hoje.
 
@@ -11,12 +11,12 @@ Funções puras ou com dependências injetadas, para testar sem banco, sem rede 
 (tests/test_lua_hermes.py, T1 a T18). O routers/agentes.py só as chama.
 
 AS TRÊS TRAVAS QUE NASCEM AQUI
-1. Rota interna: só com a chave certa, vinda de dentro do servidor, e sempre como a Bruna (uid 5),
+1. Rota interna: só com a chave certa, vinda de dentro do servidor, e sempre como a responsável (uid 5),
    nunca com o uid que vier no corpo.
-2. Operador técnico vindo do Hermes vira prévia e só roda com o "sim" da Bruna. Ele é um terminal
+2. Operador técnico vindo do Hermes vira prévia e só roda com o "sim" da responsável. Ele é um terminal
    por procuração, e é por ali que passaria uma ordem escondida num PDF da reclamada.
-3. Trava do processual (decisão D7 da Pam): a Lua vê o prazo processual para conferir, mas a
-   Bruna só vê o fatal interno do escritório (D-2 úteis).
+3. Trava do processual (decisão D7 da gestão): a Lua vê o prazo processual para conferir, mas a
+   responsável só vê o fatal interno do escritório (D-2 úteis).
 
 Spec: LUA_HERMES/SPEC_lua_hermes.md, seções 8, 9, 10 e 12-A.
 """
@@ -44,13 +44,13 @@ HERMES_URL = os.environ.get("LUA_HERMES_URL", "http://127.0.0.1:8644/v1/chat/com
 _DE_DENTRO = {"127.0.0.1"}
 _CABECALHOS_DE_PROXY = ("x-forwarded-for", "x-real-ip", "forwarded")
 
-# Chaves que o Hermes nunca escolhe: o "sim" é da Bruna e quem age é sempre ela.
+# Chaves que o Hermes nunca escolhe: o "sim" é da responsável e quem age é sempre ela.
 CHAVES_PROIBIDAS = ("confirmado", "forcar", "uid", "usuario_id")
 
 # Ferramentas que, vindas do Hermes, sempre viram prévia. As que já têm prévia no motor de hoje
 # (mensagem_cliente, responder_lead, mover_lead, advbox_*, sistema_api) seguem pelo executar().
 SEMPRE_PREVIA = {"operador_tecnico", "dar_ciencia", "cancelar_compromisso", "enviar_email", "encaminhar_email"}
-# Decisão D26 (Pam, 08/11/2026): depois de ler texto de fora no turno, nenhuma ação interna roda sem prévia e sim.
+# Decisão D26 (08/11/2026): depois de ler texto de fora no turno, nenhuma ação interna roda sem prévia e sim.
 ROTULOS_DA_PREVIA = {
     "escrever_peca": "Pedir esta peça à produção", "revisar_peca": "Mandar para a revisão da Valentina",
     "marcar_checklist": "Marcar no checklist da tarefa", "conferir_tarefa": "Responder a conferência da tarefa",
@@ -71,7 +71,7 @@ TETO_PREVIA = 9000
 ARQUIVO_SIGILO = os.environ.get("LUA_SIGILO_ARQUIVO", "/opt/santoslourenco/dados/lua_sigilo_dia.txt")
 MARCA_DE_ANEXO = "[Anexo "
 AVISO_SEGREDO = "Processo em segredo de justiça: não leve nada destes autos para fora do escritório."      # a frase de lua_autos.py
-# Depois que a conversa fecha (o Hermes passou do tempo limite), a prévia não chegaria à Bruna: nada disso roda.
+# Depois que a conversa fecha (o Hermes passou do tempo limite), a prévia não chegaria à responsável: nada disso roda.
 _ESCRITA_POR_PREVIA_NA_FERRAMENTA = {"mensagem_cliente", "responder_lead", "mover_lead", "advbox_criar_tarefa", "advbox_andamento"}
 
 # Um turno da Lua por vez: duas abas ou voz e texto juntos embaralhariam o que cada turno fez.
@@ -108,7 +108,7 @@ def chave_ok(recebida, certa, ip, cabecalhos=None):
 
 
 def ctx_da_rota(corpo):
-    """Contexto de quem age pela rota: sempre a Bruna. O corpo da chamada não escolhe o uid."""
+    """Contexto de quem age pela rota: sempre a responsável. O corpo da chamada não escolhe o uid."""
     return {"uid": LUA_UID, "agente": AGENTE, "via_hermes": True, "acoes": []}
 
 
@@ -162,7 +162,7 @@ def _folhas(valor):
 
 
 def previa_fiel(previa, args):
-    """A Bruna vê tudo o que vai rodar: o que a prévia cortou entra por extenso; o que não couber, não roda."""
+    """A responsável vê tudo o que vai rodar: o que a prévia cortou entra por extenso; o que não couber, não roda."""
     vista = _sem_espacos_extras(previa)
     if all(_sem_espacos_extras(f) in vista for f in _folhas(args)):
         return previa
@@ -173,14 +173,14 @@ def previa_fiel(previa, args):
 
 
 def executar_pela_rota(nome, entrada, executar, criar_pendente, ctx=None, leu_de_fora=False):
-    """Executa uma ferramenta pedida pelo Hermes, como a Bruna e com as travas de hoje.
+    """Executa uma ferramenta pedida pelo Hermes, como a responsável e com as travas de hoje.
 
     executar(ctx, nome, entrada) é o executar() oficial do routers/agentes.py.
     criar_pendente(ctx, nome, entrada, previa) grava a prévia e devolve o código dela.
     """
     ctx = ctx or ctx_da_rota({})
     if ctx.get("uid") != LUA_UID:
-        raise ValueError("a rota da Lua só age como a Bruna (uid %s)" % LUA_UID)
+        raise ValueError("a rota da Lua só age como a responsável (uid %s)" % LUA_UID)
     entrada = _limpar(entrada)
     ctx["leu_de_fora"] = bool(leu_de_fora)      # mover_lead decide a prévia lá dentro, porque resolve a coluna antes
     if _pede_previa(nome, entrada, leu_de_fora):
@@ -188,7 +188,7 @@ def executar_pela_rota(nome, entrada, executar, criar_pendente, ctx=None, leu_de
         codigo = criar_pendente(ctx, nome, entrada, previa)
         return {"pendente": codigo, "precisa_confirmar": True, "codigo": codigo, "previa": previa,
                 "instrucao": "NÃO foi feito ainda. Mostre a prévia exatamente e pergunte se pode. Só chame "
-                             "confirmar_acao com esse código depois que a Bruna disser que sim, numa próxima mensagem."}
+                             "confirmar_acao com esse código depois que a responsável disser que sim, numa próxima mensagem."}
     return executar(ctx, nome, entrada)
 
 
@@ -223,7 +223,7 @@ def _e_data_de_prazo(texto, inicio, fim):
     """A data só fica se a frase dela falar de evento e não falar de prazo (A2).
 
     Evento e prazo na mesma frase conta como prazo: mostrar o fatal interno no lugar de uma data de audiência é
-    um erro que se percebe; mostrar o processual à Bruna é o que a decisão D7 proíbe.
+    um erro que se percebe; mostrar o processual à responsável é o que a decisão D7 proíbe.
     """
     if not PALAVRAS_DE_PRAZO.search(texto, max(0, inicio - DISTANCIA), min(len(texto), fim + DISTANCIA)):
         return False
@@ -267,7 +267,7 @@ def trava_processual(texto, processuais, comuns=()):
     if not texto or not processuais:
         return texto, 0
     # Data que é processual de uma tarefa e interno de outra: sem a frase dizer que é processual, não dá para saber
-    # qual das duas é, e trocar daria à Bruna uma data errada (A21).
+    # qual das duas é, e trocar daria à responsável uma data errada (A21).
     ambiguas = set(processuais) & (set(processuais.values()) | set(comuns or ()))
     por_padrao = []
     for proc, interno in processuais.items():
@@ -358,20 +358,20 @@ SEMANA = ("segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sext
 
 
 def montar_mensagem(texto, agora, via, orientacoes, pendentes):
-    """O que vai ao Hermes a cada mensagem da Bruna: o momento, a via, as regras e as prévias abertas."""
-    linhas = ["[Sistema Santos Lourenço | Bruna | %s, %s, %s | via %s]" % (
+    """O que vai ao Hermes a cada mensagem da responsável: o momento, a via, as regras e as prévias abertas."""
+    linhas = ["[Sistema Santos Lourenço | Responsável | %s, %s, %s | via %s]" % (
         SEMANA[agora.weekday()], agora.strftime("%d/%m/%Y"), agora.strftime("%H:%M"), via)]
     if via == "voz":
-        linhas.append("A Bruna falou e vai OUVIR a resposta: no máximo 3 frases curtas, sem listas nem markdown.")
+        linhas.append("A responsável falou e vai OUVIR a resposta: no máximo 3 frases curtas, sem listas nem markdown.")
     if orientacoes:
         linhas.append("Orientações da administração (siga sempre):")
         linhas.extend("- %s" % o for o in orientacoes)
     if pendentes:
-        linhas.append("Ações esperando o SIM da Bruna. Se a mensagem dela for um sim para uma delas, chame "
+        linhas.append("Ações esperando o SIM da responsável. Se a mensagem dela for um sim para uma delas, chame "
                       "confirmar_acao com o código; se for não, cancelar_acao:")
         linhas.extend("- código %s: %s" % (p["id"], (p.get("previa") or "")[:400]) for p in pendentes)
     linhas.append("")
-    linhas.append("[Mensagem da Bruna]")
+    linhas.append("[Mensagem da responsável]")
     linhas.append(texto)
     return "\n".join(linhas)
 
@@ -419,7 +419,7 @@ def perguntar_com_reserva(texto, perguntar_hermes, motor_atual, ler_memoria, avi
     try:
         avisar(motivo)
     except Exception:
-        pass  # o aviso não pode derrubar a resposta da Bruna
+        pass  # o aviso não pode derrubar a resposta da responsável
     return motor_atual(texto, memoria)
 
 
@@ -596,7 +596,7 @@ def _motivo_sem_internet():
     with _TRAVA_TURNOS:
         turno = _TURNOS.get(LUA_UID)
         if turno is None:
-            return "a conversa com a Bruna já terminou. NÃO busquei."
+            return "a conversa com a responsável já terminou. NÃO busquei."
         if turno.get("sigilo") or em_sigilo:
             return ("hoje você leu processo em segredo de justiça ou dado que exigiu permissão de administração, e esse conteúdo "
                     "ainda está na conversa. NÃO busquei na internet: responda com o que já tem. A busca volta amanhã.")
@@ -604,7 +604,7 @@ def _motivo_sem_internet():
 
 
 def acoes_sem_processual(acoes, mapa, comuns=()):
-    """O resumo das ações também vai à tela da Bruna: passa pela mesma trava."""
+    """O resumo das ações também vai à tela da responsável: passa pela mesma trava."""
     return [trava_processual(a, mapa, comuns)[0] for a in acoes or []]
 
 
@@ -631,7 +631,7 @@ def e_um_sim(texto):
 def _barrar_confirmacao(entrada, ultima_msg, ultima_previa):
     """Motivo para recusar um confirmar_acao vindo do Hermes, ou None. Na dúvida, recusa."""
     if not ultima_msg or not ultima_previa or not e_um_sim(ultima_msg()):
-        return ("a última mensagem da Bruna não é um sim claro para a prévia. NÃO executei. Mostre a prévia e pergunte "
+        return ("a última mensagem da responsável não é um sim claro para a prévia. NÃO executei. Mostre a prévia e pergunte "
                 "de novo.")
     try:
         codigo = int(entrada.get("codigo"))
@@ -643,7 +643,7 @@ def _barrar_confirmacao(entrada, ultima_msg, ultima_previa):
     with _TRAVA_TURNOS:
         turno = _TURNOS.get(LUA_UID)
         if turno is None:
-            return "confirmação só vale dentro de uma conversa com a Bruna. NÃO executei."
+            return "confirmação só vale dentro de uma conversa com a responsável. NÃO executei."
         if turno.get("confirmou"):
             return "um sim vale para uma ação só. NÃO executei; mostre a próxima prévia e espere outro sim."
         turno["confirmou"] = True
@@ -655,7 +655,7 @@ def _sem_espacos_extras(texto):
 
 
 def garantir_previas(resposta, previas):
-    """Toda prévia criada no turno aparece para a Bruna, mesmo que o modelo tenha omitido (A7)."""
+    """Toda prévia criada no turno aparece para a responsável, mesmo que o modelo tenha omitido (A7)."""
     vista = _sem_espacos_extras(resposta)
     faltam = [p for p in previas or [] if _sem_espacos_extras(p.get("previa")) not in vista]
     if not faltam:
@@ -666,7 +666,7 @@ def garantir_previas(resposta, previas):
 
 def reserva_sem_repetir(uid, motor_atual):
     """Se o Hermes caiu DEPOIS de já agir, o motor de hoje não refaz o pedido (sairia tarefa em dobro):
-    a Bruna recebe a lista do que já foi feito. Sem ação feita no turno, a reserva segue normal (G10)."""
+    a responsável recebe a lista do que já foi feito. Sem ação feita no turno, a reserva segue normal (G10)."""
     def reserva(texto, memoria):
         with _TRAVA_TURNOS:
             turno = _TURNOS.get(uid) or {}
@@ -685,7 +685,7 @@ def turno_hermes(texto, via, agora, orientacoes, pendentes, perguntar_hermes, mo
     """Contexto, Hermes (ou reserva), trava do processual e sem travessão. Devolve (resposta, trocas, pela_reserva).
 
     processuais() é chamada DEPOIS da resposta, porque as ferramentas só rodam durante a pergunta ao Hermes.
-    A reserva recebe o texto original da Bruna: o motor de hoje monta o próprio contexto.
+    A reserva recebe o texto original da responsável: o motor de hoje monta o próprio contexto.
     """
     mensagem = montar_mensagem(texto, agora, via, orientacoes, pendentes)
     pela_reserva = []
@@ -707,7 +707,7 @@ def atender_rota(recebida, certa, ip, cabecalhos, corpo, ctx_factory, executar, 
                  ultima_previa=None, falta_ler_autos=None):
     """O corpo da rota /api/agentes/hermes/ferramenta. Devolve (status http, resposta).
 
-    A chave é conferida antes de qualquer coisa: sem ela, nem o contexto da Bruna é montado.
+    A chave é conferida antes de qualquer coisa: sem ela, nem o contexto da responsável é montado.
     """
     cabecalhos = {str(k).lower(): v for k, v in (cabecalhos or {}).items()}
     if not chave_ok(recebida, certa, ip, cabecalhos):
@@ -722,14 +722,14 @@ def atender_rota(recebida, certa, ip, cabecalhos, corpo, ctx_factory, executar, 
         if motivo:
             return 200, {"erro": motivo}
     if not _turno_aberto() and _e_escrita(nome, entrada):
-        return 200, {"erro": "a conversa com a Bruna já terminou, então ela não veria a prévia. NÃO fiz."}
+        return 200, {"erro": "a conversa com a responsável já terminou, então ela não veria a prévia. NÃO fiz."}
     motivo = falta_ler_autos(nome, entrada) if falta_ler_autos else None      # regra da Vitória (D25)
     if motivo:
         return 200, {"erro": motivo}
     motivo = _motivo_sem_internet() if nome == "buscar_internet" else None
     if motivo:
         return 200, {"erro": motivo}
-    if ultima_msg and MARCA_DE_ANEXO in str(ultima_msg() or ""):      # o nome do arquivo é texto de fora dentro da fala da Bruna
+    if ultima_msg and MARCA_DE_ANEXO in str(ultima_msg() or ""):      # o nome do arquivo é texto de fora dentro da fala da responsável
         _marcar_leitura_de_fora()
     ctx = ctx_factory()
     try:

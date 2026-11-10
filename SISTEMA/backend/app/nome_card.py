@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """O nome do cliente no card: quando o documento sabe mais que o WhatsApp.
 
-Pam, 07/11/2026, a partir do Loresvaldo: "sempre que for recebido card e se tiver nome, a
+07/11/2026, a partir do Galdino: "sempre que for recebido card e se tiver nome, a
 gente ja incluiu o nome ou, pelo menos, depois que fechou, ja incluiu o nome do cliente,
 porque a gente ja tem o nome dele".
 
 E verdade: a esteira do GR le a CNH que o cliente manda e guarda nome, CPF, RG e endereco em
 `qualificacao`. O card do CRM nunca era atualizado, entao o quadro mostrava "Jr", "empresa" ou
-o proprio telefone enquanto o sistema sabia "JOSE DE SOUZA JUNIOR".
+o proprio telefone enquanto o sistema sabia "BENICIO DE LIMA JUNIOR".
 
 DECISOES DELA (07/11/2026)
 - o nome fica em CAIXA ALTA, como vem da CNH;
@@ -114,7 +114,7 @@ def e_pedaco_de(atual, candidato):
     """`atual` e um pedaco do nome do documento? ("Eli Lopes" dentro de "ELI RESENDE LOPES")
 
     Todas as palavras que identificam no nome atual precisam aparecer no candidato. Assim
-    "Renilson Júnior" cede para "FRANCISCO RENILSON SILVA BONFIM" (Júnior e sufixo, nao conta),
+    "Anselmo Júnior" cede para "FRANCISCO ANSELMO SILVA DORNELES" (Júnior e sufixo, nao conta),
     mas "Transportes Silva Ltda" NAO cede para "JOAO SILVA", porque "transportes" e "ltda" nao
     estao la: sao duas entidades diferentes, e trocar seria apagar informacao.
     """
@@ -125,7 +125,7 @@ def e_pedaco_de(atual, candidato):
 
 
 def arrumar(nome):
-    """O nome como ele fica no card: CAIXA ALTA, sem espaco sobrando (Pam, 07/11/2026)."""
+    """O nome como ele fica no card: CAIXA ALTA, sem espaco sobrando (07/11/2026)."""
     n = re.sub(r'\s+', ' ', (nome or '').strip())
     return n.upper()
 
@@ -190,7 +190,7 @@ def atualizar_nome(con, cid, candidato, fonte, quem='sistema', nota=True):
     """Poe o nome do documento no card, se ele for melhor. Devolve o nome novo ou None.
 
     Registro interno e so isso: uma linha em `wa_nome_hist` e uma nota na conversa, que e como
-    o sistema ja anota troca de quadro. NAO abre tarefa (Pam, 07/11/2026).
+    o sistema ja anota troca de quadro. NAO abre tarefa (07/11/2026).
     """
     if fonte not in ORIGENS:
         raise NomeInvalido('fonte desconhecida: %r' % (fonte,))

@@ -1477,7 +1477,7 @@ def _aplicar_correcoes(m, autos=None, ato='', titularidade='', vencimento='', po
         notas.append('Pelos autos o prazo e %s; a leitura so do texto dizia %s.' % (
             _ROTULO_TIT.get(emb['titularidade'], emb['titularidade']), _ROTULO_TIT.get(m.get('titularidade'), m.get('titularidade'))))
         m['titularidade'] = emb['titularidade']
-    # Fase pelos autos (caso Cleber): recurso de sentenca sugerido num processo que ja esta
+    # Fase pelos autos (caso Romildo): recurso de sentenca sugerido num processo que ja esta
     # em acordao do TRT/TJ vira o recurso ao tribunal superior, com ED em paralelo.
     fz = (autos or {}).get('fase') or {}
     _DE_SENTENCA = {'RECURSO ORDINARIO': 'RECURSO DE REVISTA', 'APELACAO': 'RECURSO ESPECIAL / EXTRAORDINARIO'}
@@ -1667,7 +1667,7 @@ async def fechamento(intimacao_id: int, dados: FechamentoIn,
             con_g.close()
     # A conexao SQLite tem de nascer e morrer NA MESMA THREAD em que grava: abrir aqui e
     # gravar em to_thread dava "SQLite objects created in a thread can only be used in that
-    # same thread" (primeiro Cadastrar de verdade, Cleber 84044, 05/10/2026 20h50).
+    # same thread" (primeiro Cadastrar de verdade, Romildo 10001, 05/10/2026 20h50).
     def _gravar():
         con = _cache_con()
         con.row_factory = sqlite3.Row

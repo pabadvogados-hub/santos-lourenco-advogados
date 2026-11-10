@@ -404,7 +404,7 @@ async def _originar(s, lead, rodada, modo):
 
 def _nota_linha(conversa_id, texto):
     """Nota no chat no MESMO formato das ligacoes pelo WhatsApp ('iniciada por X para +55..' e depois
-    'encerrada (m:ss de conversa)' / '(nao atendida)'): assim a mesa do Comercial e a PABcoin contam as
+    'encerrada (m:ss de conversa)' / '(nao atendida)'): assim a mesa do Comercial e a moedas da equipe contam as
     ligacoes pela linha fixa igual contam as do WhatsApp (comercial_kpi._ligacoes)."""
     if not conversa_id:
         return

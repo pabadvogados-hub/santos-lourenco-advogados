@@ -2,7 +2,7 @@
 """
 dados_do_cliente.py  -  a QUALIFICACAO do cliente sai dos DOCUMENTOS dele.
 
-REGRA DA VITÓRIA (24/09/2026, depois do contrato do Carlos Henrique ter sido
+REGRA DA VITÓRIA (24/09/2026, depois do contrato do Heitor Valença ter sido
 assinado com os {{campos}} do modelo a mostra):
 
   "as informacoes para preenchimento do contrato sao SEMPRE extraidas dos
@@ -10,7 +10,7 @@ assinado com os {{campos}} do modelo a mostra):
 
 Ou seja: quem manda na qualificacao civil e o DOCUMENTO, nao a transcricao da
 ligacao. A ligacao de fechamento e conversa comercial; ninguem dita CPF nela.
-Foi exatamente por isso que o contrato CT. 294/2026 saiu vazio.
+Foi exatamente por isso que o contrato CT. 100/2026 saiu vazio.
 
 Cada campo tem um dono:
 
@@ -23,7 +23,7 @@ Cada campo tem um dono:
 
 Leitura por VISAO do Claude da assinatura (mesmo caminho do claude_vps), NUNCA
 pela API e NUNCA por OCR. O OCR do Tesseract foi quem devolveu lixo na CNH do
-Carlos: veio o nome da MAE e nenhum CPF.
+Heitor: veio o nome da MAE e nenhum CPF.
 
 Este modulo NAO fala com o cliente e NAO escreve em lugar nenhum. So le
 documento e devolve dicionario. Quem decide o que fazer com a falta e o vigia.
@@ -127,7 +127,7 @@ _PROMPTS = {"cnh": _PROMPT_CNH, "ctps": _PROMPT_CTPS,
 # Prompt UNICO: diz o tipo, diz se da para ler e ja extrai os campos daquele
 # tipo, tudo numa passada so. Antes eram DUAS chamadas de visao por arquivo (o
 # vigia classificava e a varredura classificava de novo) e nenhuma das duas
-# olhava se o documento estava legivel: a CNH ilegivel do Carlos passou como
+# olhava se o documento estava legivel: a CNH ilegivel do Heitor passou como
 # "cnh" e o intake seguiu com ela. Uma chamada so tambem e a metade do token.
 _PROMPT_LEITURA = u"""Você lê documentos que clientes de um escritório trabalhista mandam
 pelo WhatsApp. Diga O QUE É, se DÁ PARA LER e extraia os dados. Responda SÓ este JSON:
@@ -256,7 +256,7 @@ _LIXO = re.compile(r"\(.*?(incert|ilegiv|ilegív|confirmar|verificar|nao informa
 def _limpo(v):
     """Tira do VALOR qualquer ressalva que a IA tenha escrito dentro dele.
 
-    No contrato do Carlos o endereco foi para o papel assinado como
+    No contrato do Heitor o endereco foi para o papel assinado como
     'Rua Yanasso (grafia incerta por qualidade do documento), n 1385'. Campo de
     contrato nao e lugar de recado: ou o dado esta limpo, ou esta vazio.
     """

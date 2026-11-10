@@ -228,7 +228,7 @@ def cliente_assinou_tudo(c):
 # Mesma receita do lead_quente_tarefa.py (tarefa urgente + faixa vermelha;
 # a origem 'cobranca-assinatura' esta no ORIGENS do bloco_aviso_tarefas.js).
 # Tambem nasce tarefa quando a regua esgota em D+MAX: antes era so um print
-# no log ("ALERTA INTERNO") e o caso do Jadson ficou 3 semanas invisivel.
+# no log ("ALERTA INTERNO") e o caso do Laerte ficou 3 semanas invisivel.
 
 SISTEMA_DB = os.getenv("SISTEMA_DB", "/opt/santoslourenco/SISTEMA/backend/sistema_sl.db")
 import sys as _s, os as _o
@@ -313,7 +313,7 @@ def _tarefa_ligacao(c, nome, motivo, detalhe):
 def msg_assinou(nome):
     p = (nome or "").split()[0].title() if nome else "amigo(a)"
     return (f"Ihuuul, {p}! \U0001F389✅ Assinaturas confirmadas! Muito obrigado pela confianca \U0001F64F\U0001F49B\n\n"
-            # sem citar documento aqui (caso Fabio, 25/09): a mensagem pedia holerite e
+            # sem citar documento aqui (caso Abel, 25/09): a mensagem pedia holerite e
             # TRCT a quem nunca foi registrado. O que falta sai da cobranca de documentos,
             # que ja olha a conversa e o caso antes de pedir.
             f"Agora e correr pra dar entrada no seu caso \U0001F680 O que voce ja mandou aqui "
@@ -668,7 +668,7 @@ def processar():
         if dia > MAX_DIA:
             print(f"[{nome}] >> D+{dia}: PARANDO automatico. ALERTA INTERNO: cobrar manualmente / ligar.")
             # (14/10/2026) o "alerta interno" era so a linha acima no log e o
-            # caso do Jadson ficou 3 semanas invisivel: regua esgotada agora
+            # caso do Laerte ficou 3 semanas invisivel: regua esgotada agora
             # vira tarefa de ligacao para a vendedora do caso.
             _tarefa_ligacao(c, nome, "esgotou",
                             f"Levou {len(c.get('dias_enviados') or [])} lembretes automaticos de "

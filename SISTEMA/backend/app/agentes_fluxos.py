@@ -1,5 +1,5 @@
 """FLUXOS DO ESCRITORIO NA MAO DOS AGENTES (29/09/2026, pedido do Joab: "eles terao acesso
-total ao backend ... se a Vitória pedir para revisar, acione o nosso fluxo; o Rafa, ver, analisar,
+total ao backend ... se a Vitória pedir para revisar, acione o nosso fluxo; o marketing, ver, analisar,
 publicar, tudo pelo Assistente ... quero tudo como se fossem assistentes mesmo").
 
 Como o agente mexe no sistema: pela PROPRIA API do sistema, como a pessoa (token dela, gerado aqui
@@ -679,7 +679,7 @@ def ler_chat(c, ctx, conversa_id=None, lead=None, ultimas=80, termo=None):
         q += " AND conteudo LIKE ?"
         args.append("%" + str(termo) + "%")
     linhas = c.execute(q + " ORDER BY id DESC LIMIT ?", args + [max(10, min(int(ultimas or 80), 300))]).fetchall()
-    # com 'termo' (ex.: TRANSCRICAO) a mensagem vem inteira: a transcricao do Augusto tem ~28 mil caracteres
+    # com 'termo' (ex.: TRANSCRICAO) a mensagem vem inteira: a transcricao do Silvano tem ~28 mil caracteres
     cap_msg, cap_total = (32000, 34000) if termo else (4000, 15000)
     msgs, tam = [], 0
     for m in linhas:                                   # da mais nova para a mais velha, ate caber
@@ -687,7 +687,7 @@ def ler_chat(c, ctx, conversa_id=None, lead=None, ultimas=80, termo=None):
         if tam + len(texto) > cap_total and msgs:
             break
         tam += len(texto)
-        quem = {"contato": "lead/cliente", "atendente": "equipe", "ia": "Sebastião (robô)", "nota": "nota interna"}.get(
+        quem = {"contato": "lead/cliente", "atendente": "equipe", "ia": "IA de atendimento (robô)", "nota": "nota interna"}.get(
             m["origem"], m["origem"])
         msgs.append({"de": quem + (" (%s)" % m["autor"] if m["autor"] else ""), "tipo": m["tipo"], "texto": texto,
                      "quando": _quando(m["criado_em"])})
@@ -868,7 +868,7 @@ def pegar_lead(c, ctx, conversa_id=None, lead=None):
         return {"erro": erro}
     api(ctx, "POST", "/api/atendimento/conversas/%s/atribuir" % int(conversa_id),
         {"atendente_email": ctx["eu"].email, "assumir_ia": False})
-    resumo = "Coloquei o lead %s no nome de %s (o Sebastião continua como estava)" % (conversa_id, ctx["primeiro"])
+    resumo = "Coloquei o lead %s no nome de %s (a IA de atendimento continua como estava)" % (conversa_id, ctx["primeiro"])
     ctx["registrar"]("pegar_lead", conversa_id, resumo)
     return {"ok": True, "feito": resumo + "."}
 
@@ -927,7 +927,7 @@ def responder_lead(c, ctx, texto, conversa_id=None, lead=None):
                                  ("%s (%s)" % (w["contato_nome"], w["contato_telefone"])
                                   if ctx["uid"] == LUA_UID and w["contato_nome"]
                                   else w["contato_nome"] or w["contato_telefone"]), texto,
-                                 "\n(Ao responder, o Sebastião sai desta conversa.)" if w["ia_ativa"] else ""))
+                                 "\n(Ao responder, a IA de atendimento sai desta conversa.)" if w["ia_ativa"] else ""))
 
 
 def _responder(c, ctx, conversa_id, texto):
@@ -1073,7 +1073,7 @@ FERRAMENTAS = {
          "input_schema": {"type": "object", "properties": {"termo": _S}, "required": ["termo"]}},
         {"name": "ler_chat",
          "description": "Lê o CHAT AO VIVO (a conversa do WhatsApp no CRM) de qualquer lead ou cliente: mensagens dele, "
-                        "da equipe e do Sebastião, notas internas, TRANSCRIÇÕES das ligações e a aba Entrevista. Pelo "
+                        "da equipe e da IA de atendimento, notas internas, TRANSCRIÇÕES das ligações e a aba Entrevista. Pelo "
                         "conversa_id ou pelo nome/telefone em 'lead'. 'termo' procura uma palavra na conversa inteira "
                         "e traz a mensagem completa: para a TRANSCRIÇÃO inteira de uma ligação use termo='TRANSCRICAO'. "
                         "Só leitura: não marca nada como lido.",
@@ -1326,7 +1326,7 @@ def prompt(ctx):
         return ""
     txt = "\nFluxos do escritório que você aciona para essa pessoa:\n" + "\n".join("- " + PROMPT_AREAS[x] for x in
                                                                                    ("juridico", "marketing", "comercial") if x in a)
-    txt += ("\n- Geral: buscar_lead acha qualquer card pelo nome (inclusive o nome que o lead disse ao Sebastião) ou "
+    txt += ("\n- Geral: buscar_lead acha qualquer card pelo nome (inclusive o nome que o lead disse à IA de atendimento) ou "
             "telefone; ler_chat abre o CHAT AO VIVO de qualquer lead ou cliente (conversa, transcrição das ligações, "
             "entrevista): o Chat ao Vivo e o CRM SÃO o sistema que você acessa, nunca diga que é outro sistema; "
             "girar_documentos desvira fotos e PDFs no Drive; e para qualquer outra coisa que a pessoa faz na "

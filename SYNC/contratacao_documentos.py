@@ -4,7 +4,7 @@ contratacao_documentos.py  -  o que se pede ao cliente na fase de contratacao,
 como se classifica o que ele manda e quando o card esta pronto para virar
 contrato.
 
-REGRAS DA VITÓRIA (24/09/2026), depois do contrato CT. 294/2026 ter sido
+REGRAS DA VITÓRIA (24/09/2026), depois do contrato CT. 100/2026 ter sido
 assinado com os {{campos}} do modelo a mostra:
 
 1. O pedido inicial passa a ser de TRES documentos:

@@ -25,7 +25,7 @@ _MODALIDADES = [
 ]
 # Tipo SEMPRE colado na palavra audiencia. Procurar o rotulo solto no texto pega
 # ruido: "sob pena de extincao do processo sem JULGAMENTO" virava audiencia de
-# julgamento (erro real, visto no caso Rodrigo Francelino).
+# julgamento (erro real, visto no caso Aurélio Bastos).
 _RE_TIPO = re.compile(
     r'audiencia\s+(?:de\s+)?(inicial|una|instrucao(?:\s+e\s+julgamento)?|'
     r'conciliacao|julgamento|mediacao)')

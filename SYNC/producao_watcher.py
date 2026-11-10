@@ -103,7 +103,7 @@ def _conversas():
                        "where pipeline_id=? and etapa=?",
                        (PIPELINE_PRODUCAO, ETAPA_GATILHO)).fetchall()
     con.close()
-    # nome do card vem do WhatsApp e chega com espaco sobrando ("Jose Carlos de
+    # nome do card vem do WhatsApp e chega com espaco sobrando ("Benicio Arantes de
     # Souza "), o que atrapalha a busca do processo no ADVBOX
     return [(cid, (nome or "").strip(), tel) for cid, nome, tel in rows]
 
@@ -210,9 +210,9 @@ def buscar_transcricao(nome, cid, pastas=()):
          e pelo NOME DO CLIENTE, porque a entrada guarda varios clientes.
       4. Nome no Drive inteiro (ultimo recurso).
 
-    Foi a falta de (1) e (2) que travou o Jose Carlos de Souza em 18/08/2026: a
+    Foi a falta de (1) e (2) que travou o Benicio Arantes de Lima em 18/08/2026: a
     transcricao estava na raiz da pasta dele, com o link na ficha, chamada
-    "Jose lead mororista.txt" - e o motor alertava "nao achei" duas vezes ao dia.
+    "Benicio lead mororista.txt" - e o motor alertava "nao achei" duas vezes ao dia.
     """
     os.makedirs(WORK, exist_ok=True)
     # 1) links da ficha do card
@@ -278,7 +278,7 @@ def buscar_transcricao(nome, cid, pastas=()):
 
 
 # ---------------- insumos completos (ordem da Vitória, 24/09/2026) ----------------
-# Caso Carlos Henrique (conversa 1485): o motor lia SO a transcricao da pasta e
+# Caso Heitor Valença (conversa 1485): o motor lia SO a transcricao da pasta e
 # a primeira CCT que o Drive devolvesse. O salario, a empresa, o CNPJ e as datas
 # estavam na aba Entrevista e no TRCT/ficha da CTPS, que o motor nunca abria; a
 # liquidacao caiu com "salario ausente" e a CCT pega foi a ALTERNATIVA (SETTRIM)
@@ -346,11 +346,11 @@ def _id_midia(nome):
 def documentos_da_pasta(docs_id, cid):
     """Baixa os documentos (sem duplicata: a varredura antiga subia 2 copias da
     mesma midia) para WORK/<cid>_docs e devolve a lista de caminhos locais."""
-    # paginado: a pasta do Carlos tinha 141 arquivos e o _listar para em 100
-    # SUBPASTAS (29/09/2026): cliente com acao contra mais de uma empresa (Augusto: JSL e
-    # Freitas e Ferreira) tem os documentos em DOCUMENTOS DO CLIENTE/<EMPRESA>. Antes so a
+    # paginado: a pasta do Heitor tinha 141 arquivos e o _listar para em 100
+    # SUBPASTAS (29/09/2026): cliente com acao contra mais de uma empresa (Silvano: TRANSPORTADORA A e
+    # TRANSPORTADORA B) tem os documentos em DOCUMENTOS DO CLIENTE/<EMPRESA>. Antes so a
     # raiz era lida e a inicial saia sem holerite/ponto. Agora desce nas subpastas; o
-    # arquivo de subpasta vai com o nome dela na frente ("JSL S.A. - HOLERITE...").
+    # arquivo de subpasta vai com o nome dela na frente ("TRANSPORTADORA A S.A. - HOLERITE...").
     fs, filas, pastas_vistas = [], [(docs_id, "")], set()
     while filas:
         pasta_id, sub = filas.pop(0)
@@ -562,7 +562,7 @@ def gerar_dossie(transcricao_path, cct_paths, nome, tel, notas="", entrevista=No
 def _dinheiro(v, padrao=0.0):
     """Extrai o primeiro valor monetario/numerico de qualquer coisa que o
     modelo devolva: 2391.97, "R$ 2.391,97 (piso de maio/2025)", "50%", None.
-    Caso Wellington (11/09/2026): piso veio com explicacao entre parenteses
+    Caso Ezequiel (11/09/2026): piso veio com explicacao entre parenteses
     e o float() puro derrubava a liquidacao inteira."""
     if v is None:
         return padrao
@@ -585,7 +585,7 @@ def liquidar(dossie):
     piso = _dinheiro(c.get("piso_valor")) or None
     sal = _dinheiro(ct.get("salario_registrado"))
     # dado faltante vira pendencia em vermelho, nao derruba a producao (regra da
-    # casa; caso Carlos 24/09/2026). So para se faltarem os dois.
+    # casa; caso Heitor 24/09/2026). So para se faltarem os dois.
     pend = dossie.setdefault("pendencias", [])
     if not sal and piso:
         sal = piso
@@ -602,7 +602,7 @@ def liquidar(dossie):
     j = dossie.get("jornada", {})
     horas_dia = _dinheiro(j.get("horas_dia"), 12) or 12
     ds = j.get("dias_semana")
-    # "De domingo a domingo" etc.: texto vira numero (caso Wellington 11/09)
+    # "De domingo a domingo" etc.: texto vira numero (caso Ezequiel 11/09)
     if isinstance(ds, str) and "domingo a domingo" in ds.lower():
         dias_sem = 7
     else:
@@ -617,7 +617,7 @@ def liquidar(dossie):
     dias_uteis = round(meses * (26 if dias_sem >= 6 else 22))
     com_mes = 500.0 if ct.get("comissoes_por_fora") else 0.0
     # base = o maior entre salario registrado e piso (antes era SEMPRE o piso,
-    # o que subliquidava quem ganha acima dele, como o Carlos: 2.177,97 x 1.675,36)
+    # o que subliquidava quem ganha acima dele, como o Heitor: 2.177,97 x 1.675,36)
     sal_dev = max(piso, sal) + com_mes
     vh = sal_dev / 220
     he_pct = (_dinheiro(c.get("adicional_he_pct"), 50) or 50) / 100
@@ -1041,7 +1041,7 @@ def rodar(executar=False):
     for cid, nome, tel in _conversas():
         st = est["cards"].setdefault(str(cid), {"status": "novo", "alertas": {}})
         if st["status"] == "manual":
-            # MANUAL = a inicial sai em sessao, mas nao pode ficar esquecida (Anderson:
+            # MANUAL = a inicial sai em sessao, mas nao pode ficar esquecida (Tobias:
             # marcado em 08/10/2026 e parado ate 13/10). Um aviso por dia a Dra. Vitória.
             dias = _dias_em_producao(cid)
             if dias >= 1:

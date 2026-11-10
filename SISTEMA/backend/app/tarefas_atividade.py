@@ -3,7 +3,7 @@
 
 No ADVBOX, embaixo de toda tarefa, fica a Atividade: a pessoa marca o responsavel,
 escolhe o tipo (COMENTARIO ou a proxima etapa) e escreve. Faltava isso no perfil da
-tarefa do Sistema Santos Lourenço: a Vitória recebeu "Distribuido: WELLINGTON THIAGO..." e nao tinha
+tarefa do Sistema Santos Lourenço: a Vitória recebeu "Distribuido: EZEQUIEL TORRES..." e nao tinha
 onde responder a quem mandou.
 
 Como fica aqui:
@@ -188,11 +188,11 @@ def _banco_de_teste():
         CREATE TABLE usuarios (id INTEGER PRIMARY KEY, nome TEXT, ativo INTEGER DEFAULT 1);
         CREATE TABLE tarefa_parceiros (id INTEGER PRIMARY KEY, nome TEXT, telefone TEXT, ativo INTEGER DEFAULT 1);
         INSERT INTO usuarios VALUES (3, 'Vitória Lourenço', 1), (5, 'Vitória', 1), (6, 'Vitória', 1), (8, 'Desligada', 0);
-        INSERT INTO tarefa_parceiros VALUES (2, 'Dr. Felipe Montagner', '11999990000', 1);
+        INSERT INTO tarefa_parceiros VALUES (2, 'Dr. Hélio Paranhos', '11999990000', 1);
         INSERT INTO tarefas (id, tipo, titulo, descricao, processo_numero, lawsuits_id, cliente, data, origem, origem_ref,
             criado_por, criado_em, atualizado_em, caso_id)
-            VALUES (584, 'COMENTÁRIO', 'Distribuído: WELLINGTON THIAGO x VILLA_Processo 9757749-94.2026.5.02.1149',
-                    'Card Atualizado', '9757749-94.2026.5.02.1149', '18028610', 'WELLINGTON THIAGO', '2026-10-06',
+            VALUES (584, 'COMENTÁRIO', 'Distribuído: EZEQUIEL TORRES x VILLA_Processo 1000202-91.2026.5.02.0381',
+                    'Card Atualizado', '1000202-91.2026.5.02.0381', '18028610', 'EZEQUIEL TORRES', '2026-10-06',
                     'advbox', '284335022', 'ADVBOX', 1791309400, 1791309400, 77);
         INSERT INTO tarefa_responsaveis (tarefa_id, usuario_id, nome) VALUES (584, 3, 'Vitória Lourenço'), (584, 5, 'Vitória');
     """)
@@ -222,14 +222,14 @@ def _bateria():
          r["comentario"]["tarefa_id"] == 584 and r["comentario"]["texto"].startswith("Vitória, ciente.")
          and r["comentario"]["para"][0]["nome"] == "Vitória" and r["comentario"]["tarefa_gerada"] == r["tarefa_id"])
     caso("tarefa nova: Re: no titulo, tipo COMENTARIO, origem resposta com a referencia tarefa:comentario",
-         nova["titulo"].startswith("Re: Distribuído: WELLINGTON") and nova["tipo"] == "COMENTARIO"
+         nova["titulo"].startswith("Re: Distribuído: EZEQUIEL") and nova["tipo"] == "COMENTARIO"
          and nova["origem"] == "resposta" and nova["origem_ref"] == "584:%d" % r["comentario"]["id"])
     caso("tarefa nova herda processo, cliente, lawsuit e caso; descricao traz o texto e o link de volta",
-         nova["processo_numero"] == "9757749-94.2026.5.02.1149" and nova["cliente"] == "WELLINGTON THIAGO"
+         nova["processo_numero"] == "1000202-91.2026.5.02.0381" and nova["cliente"] == "EZEQUIEL TORRES"
          and nova["lawsuits_id"] == "18028610" and nova["caso_id"] == 77
          and "Vitória, ciente." in nova["descricao"] and (LINK_TAREFA % 584) in nova["descricao"])
     caso("responsaveis da tarefa nova sao quem foi marcado (parceiro com id negativo)",
-         [(x["usuario_id"], x["nome"]) for x in resp] == [(-2, "Dr. Felipe Montagner"), (5, "Vitória")])
+         [(x["usuario_id"], x["nome"]) for x in resp] == [(-2, "Dr. Hélio Paranhos"), (5, "Vitória")])
     caso("sem prazo informado a tarefa nova fica sem prazo fatal e sem interno",
          nova["prazo_fatal"] is None and nova["prazo_interno"] is None and nova["data"] == time.strftime("%Y-%m-%d"))
 

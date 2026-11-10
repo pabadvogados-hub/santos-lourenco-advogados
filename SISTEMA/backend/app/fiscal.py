@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """O FISCAL: olha a operação inteira e aponta o que vai dar problema, antes de dar.
 
-Pam, 07/11/2026: "sempre coloque um revisor para avaliar que está tudo fluindo bem, inclua um
+07/11/2026: "sempre coloque um revisor para avaliar que está tudo fluindo bem, inclua um
 agente fiscal do trabalho para antecipar e mitigar os problemas".
 
 Não é um painel de números: é uma lista de coisas ERRADAS, cada uma com o que fazer. Toda
@@ -9,10 +9,10 @@ verificação aqui nasceu de um problema que aconteceu de verdade, não de hipó
 
 | verificação | de onde veio |
 |---|---|
-| card duplicado | 07/11: 185 números com dois cards, 5 com cliente fechado (Marlon, Cleyton) |
-| fechado sem nome | 07/11: o Lourisvaldo, que a Vitória não achou no sistema |
+| card duplicado | 07/11: 185 números com dois cards, 5 com cliente fechado (Nivaldo, Otoniel) |
+| fechado sem nome | 07/11: o Galdino, que a Vitória não achou no sistema |
 | telefone invisível | 07/11: 2.113 cards que a busca não encontrava |
-| produto divergente | 06/11: o Marcos, campanha de GR fechando trabalhista |
+| produto divergente | 06/11: o Ícaro, campanha de GR fechando trabalhista |
 | parado esperando documento | a régua do GR: 4 dias sem CNH e o caso congela |
 | tarefa velha | 07/11: tarefa de ligar aberta desde 03/11 sem ninguém ver |
 | esteira parada | se o cron morre, ninguém percebe até o cliente reclamar |
@@ -96,7 +96,7 @@ def cards_duplicados(con):
 def fechado_sem_nome(con):
     """Cliente fechado cujo card não mostra o nome de uma pessoa.
 
-    Foi assim que a Vitória não achou o Lourisvaldo: o card dizia 557399877874.
+    Foi assim que a Vitória não achou o Galdino: o card dizia 557399812345.
     """
     from . import nome_card as nc
     fora = []
@@ -150,7 +150,7 @@ def busca_por_telefone_intacta(caminho=None):
         'A busca por telefone voltou a procurar só o número inteiro',
         'Devolver a chamada a busca_contato.padroes_like em atendimento.py. Sem ela, os '
         '2.113 cards gravados sem o nono dígito somem da busca e a equipe conclui que o '
-        'cliente não existe, como aconteceu com o Lourisvaldo em 07/11/2026.',
+        'cliente não existe, como aconteceu com o Galdino em 07/11/2026.',
         arquivo=caminho)]
 
 

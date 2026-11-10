@@ -301,7 +301,7 @@ def _produto_confirmado(cid):
     """Lead da campanha do desbloqueio na coluna do trabalhista: o kit so sai depois que a vendedora
     confirma que ele fechou a ACAO TRABALHISTA, concluindo a tarefa que a ponte do GR abre
     (gr_contratacao.fase_ponte). Vitória, 21/10/2026: "trocar por pergunta". Antes a ponte movia o card
-    sozinha, e o Sergio (2094), que veio do GR e virou trabalhista, levou o kit do GR."""
+    sozinha, e o Saulo (2094), que veio do GR e virou trabalhista, levou o kit do GR."""
     con = sqlite3.connect(f"file:{DB}?mode=ro", uri=True, timeout=15)
     try:
         r = con.execute("select status from tarefas where origem_ref=? order by id desc limit 1",
@@ -569,7 +569,7 @@ def buscar_transcricao_drive(nome, cid):
             metas.append(_drive_get(f"files/{fid}", fields="id,name,mimeType,size").json())
         except Exception as e:
             print(f"    (link da ficha {fid[:12]}... inacessivel: {str(e)[:80]})")
-    # a ficha de pre-cadastro NAO e a transcricao (caso Jose 12/08: os dois
+    # a ficha de pre-cadastro NAO e a transcricao (caso Benicio 12/08: os dois
     # links vao juntos na mesma nota) - a regra de escolha mora no
     # transcricao_drive, compartilhada com o motor da producao.
     escolhido = td.escolher(metas)
@@ -690,7 +690,7 @@ def rodar_intake(transcricao_path, docs_paths, dados_crm=None, qualificacao=None
 def _guardar_log_intake(cid, nome, log):
     """Log INTEIRO do intake em arquivo proprio. O resumo no log do vigia corta
     em 1200 chars e some quando alguem roda o watcher na mao - foi por isso que
-    a falha do Jose (12/08) so foi diagnosticada pelo transcript do CLI."""
+    a falha do Benicio (12/08) so foi diagnosticada pelo transcript do CLI."""
     try:
         with open(LOG_INTAKE, "a", encoding="utf-8") as f:
             f.write(f"\n===== INTAKE {nome} (conversa {cid}) | {_agora()} =====\n")
@@ -717,7 +717,7 @@ def _dados_crm(cid):
 def enroll_assinatura_e_links(nome, telefone, executar):
     """Inscreve na cobranca_assinatura e devolve o texto com os links.
     O nome tem que ser o do CONTRATO (o que a IVA extraiu), nao o do card:
-    no Jose (12/08) o card chamava 'José', o contrato saiu como 'Jose Carlos
+    no Benicio (12/08) o card chamava 'Benício', o contrato saiu como 'Benicio Arantes
     de Souza' e os links existiam mas nao foram achados - cliente ficou sem
     receber. Por isso o casamento tambem cai pro telefone (ultimos 8)."""
     sys.stdout.flush()  # o modulo reembrulha o stdout; sem flush o log anterior some
@@ -754,7 +754,7 @@ def _por_telefone(clientes, telefone):
 
 def _nome_do_contrato(log, padrao):
     """O nome real do cliente sai no log do intake; o do card costuma ser
-    apelido ('José') ou ate o @lid quando o CRM nao salvou o nome. A grafia
+    apelido ('Benício') ou ate o @lid quando o CRM nao salvou o nome. A grafia
     tem que ser identica a da fila de assinatura, entao preferimos a linha do
     proprio enroll feito la dentro."""
     for padrao_re in (r"\[enroll\] inscrito: (.+?) \|",
@@ -931,7 +931,7 @@ def _nota(cid, texto, executar):
 def _ja_tem_contrato(c):
     """Card que ja gerou contrato (intake ok) e voltou para 'Fechou!'. O vigia
     nao pede documento de novo nem gera um segundo contrato: foi movido por
-    gente, entao gente decide (caso Bruno Rafael, 25/09)."""
+    gente, entao gente decide (caso Teodoro Lins, 25/09)."""
     return (c or {}).get("intake") == "ok"
 
 
@@ -1001,8 +1001,8 @@ def fase_recepcao(est, cfg, executar):
     Toda rodada comeca lendo a conversa: o que o cliente ja mandou, o que aquilo
     e e se DA PARA LER. So depois disso a esteira decide se pede, se cobra ou se
     avanca. Antes o robo classificava o TIPO do arquivo e nunca olhava se ele
-    estava legivel - foi assim que a CNH ilegivel do Carlos Henrique passou e o
-    contrato CT. 294/2026 saiu assinado com CPF e RG em branco.
+    estava legivel - foi assim que a CNH ilegivel do Heitor Valença passou e o
+    contrato CT. 100/2026 saiu assinado com CPF e RG em branco.
 
     A leitura e por CONVERSA e por MIDIA: o que ja foi lido numa rodada nao volta
     para a visao na seguinte ("alem de gastar tokens ainda vira trabalho extra
@@ -1132,7 +1132,7 @@ def fase_recepcao(est, cfg, executar):
         faltam = aval["faltando"]
 
         # ---- chegou arquivo que a visao nao reconheceu: responde assim mesmo ----
-        # Vitória, 26/10/2026: o Carlos mandou 8 papeis do acerto e a esteira ficou calada,
+        # Vitória, 26/10/2026: o Heitor mandou 8 papeis do acerto e a esteira ficou calada,
         # porque o aviso do que falta so saia quando algum documento era reconhecido.
         if retrato["lidas_agora"] and not retrato["documentos"]:
             if (c.get("aviso_outros") or "") != _hoje():
@@ -1290,7 +1290,7 @@ def fase_intake(est, cfg, executar):
                 "nome": nome or "", "telefone": tel or "", "pedido_em": _agora(),
                 "ultima_msg_vista": 0, "docs": {}, "ultimo_lembrete": None,
                 "intake": "pendente", "alertado_hoje": None})
-        # falha de intake NAO trava mais o card pra sempre (caso Jose, 12/08):
+        # falha de intake NAO trava mais o card pra sempre (caso Benicio, 12/08):
         # a IVA pode ter devolvido uma resposta ruim, entao tentamos de novo nas
         # rodadas seguintes ate MAX_TENTATIVAS_INTAKE antes de exigir mao humana.
         if c["intake"] == "ok":
@@ -1414,7 +1414,7 @@ def fase_assinado(est, cfg, executar):
     # 'Assinado' e caixa de TRANSITO (Vitória, 11/09/2026): quem assinou segue
     # sozinho para Produção > Aguardando Documentos, onde roda a cobranca
     # de provas. Antes ninguem fazia essa travessia e os cards apodreciam aqui
-    # (Wellington e a equipe). Usa o mover da varredura: respeita a trava do
+    # (Ezequiel e a equipe). Usa o mover da varredura: respeita a trava do
     # board e escreve na trilha wa_board_hist.
     import varredura_provas as vp
     for cid, nome, tel in _conversas(ETAPA_ASSINADO):

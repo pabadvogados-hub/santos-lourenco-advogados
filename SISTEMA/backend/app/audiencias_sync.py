@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Audiências conferidas no livro do tribunal (SYNC, andamentos por processo). 07/11/2026, pedido da Pam.
+"""Audiências conferidas no livro do tribunal (SYNC, andamentos por processo). 07/11/2026, pedido da gestão.
 
 O SYNC traz, em cada processo, os andamentos com o estado escrito:
     "Audiência una (rito sumaríssimo) por videoconferência designada (04/11/2026 09:30 Sala ...)"
@@ -158,7 +158,7 @@ def vale_para_a_tarefa(dia, hora):
 
 
 def conflitos_de_horario(auds, livros):
-    """Pam, 09/11/2026: horário EXATAMENTE igual em processos diferentes. Pede-se a redesignação da agendada
+    """09/11/2026: horário EXATAMENTE igual em processos diferentes. Pede-se a redesignação da agendada
     por último. Só aponta, para a conferência da Flávia: não mexe em nada. Sem a data da designação de todas,
     ou com empate, não escolhe. Devolve dicts processo, data, motivo."""
     grupos = {}
@@ -241,7 +241,7 @@ def plano_tarefas(tarefas, livros, hoje):
     sobra = []
     for chave, ts in grupos.items():
         # fica a cópia de quem ainda tem a tarefa pendente (rubber duck 07/11: a do dia 26/11 sem
-        # responsável ia ficar e a da Bruna ia fechar); depois a que tem hora, evento e o menor número
+        # responsável ia ficar e a da responsável ia fechar); depois a que tem hora, evento e o menor número
         ts = sorted(ts, key=lambda t: (-len(t.get('resp') or ()), 0 if t.get('hora') else 1,
                                        0 if t.get('evento_id') else 1, t['id']))
         ficam = []
@@ -291,10 +291,10 @@ def plano_tarefas(tarefas, livros, hoje):
                               'comentario': 'Horário conferido no tribunal (SYNC): %s.' % v['hora']})
             continue
         if v['estado'] == 'realizada':
-            # Pam, 09/11/2026: a Bruna confere antes. A tarefa continua aberta, só ganha o comentário.
+            # 09/11/2026: a responsável confere antes. A tarefa continua aberta, só ganha o comentário.
             acoes.append({'acao': 'realizada', 'tarefa_id': t['id'],
                           'comentario': 'O tribunal registrou a audiência de %s como REALIZADA (andamento de %s, SYNC). '
-                                        'Dra. Bruna, confira e conclua a tarefa.' % (br(t['data']), br(v['quando']))})
+                                        'Responsável, confira e conclua a tarefa.' % (br(t['data']), br(v['quando']))})
             continue
         if v['estado'] == 'cancelada':
             novas = [n for n in designadas_futuras(lv, hoje) if (t['processo'], n['data']) not in abertas_por_data]
@@ -337,7 +337,7 @@ def aplicar_tarefas(con, acoes, agora_ts):
         elif a['acao'] == 'hora':
             con.execute("UPDATE tarefas SET hora=?, atualizado_em=? WHERE id=? AND status='aberta'",
                         (a['hora'], agora_ts, a['tarefa_id']))
-        elif a['acao'] != 'realizada':          # 'realizada' só comenta: quem conclui é a Bruna
+        elif a['acao'] != 'realizada':          # 'realizada' só comenta: quem conclui é a responsável
             continue
         con.execute("INSERT INTO tarefa_comentarios (tarefa_id, texto, por_id, por_nome, para, tipo, criado_em) "
                     "VALUES (?,?,?,?,?,?,?)",

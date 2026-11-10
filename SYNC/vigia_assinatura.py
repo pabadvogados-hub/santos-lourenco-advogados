@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """VIGIA DA ASSINATURA TRAVADA (Vitória, 23/10/2026: "pode construir sim o vigia de assinatura travada").
 
-A esteira conta DIAS. Ela nao ve o cliente batendo na porta. O Joel abriu o contrato dele treze
-vezes, o Alex doze, o Reginaldo quinze, e ninguem soube. Pior: os documentos corrigidos do Marcelo
-e dois dos tres do Alex nasceram SEM TELEFONE no ZapSign, ou seja, nunca houve como avisar essas
+A esteira conta DIAS. Ela nao ve o cliente batendo na porta. O Quirino abriu o contrato dele treze
+vezes, o Ivo doze, o Leopoldo quinze, e ninguem soube. Pior: os documentos corrigidos do Valdo
+e dois dos tres do Ivo nasceram SEM TELEFONE no ZapSign, ou seja, nunca houve como avisar essas
 pessoas, e elas ficaram meses paradas enquanto a regua mandava lembrete de uma assinatura que era
 impossivel fazer.
 
@@ -17,14 +17,14 @@ O que este vigia olha, documento por documento, na esteira do reclamante:
   3. SOCORRO         abriu 3 vezes ou mais e nao concluiu. Quem abre e desiste esta travando.
   4. NUNCA ABRIU     documento em "new", zero aberturas, mais de um dia util depois do envio: o
                      aviso nao chegou. Reenvia uma vez.
-  5. ASSINOU PARADO  todos os documentos assinados e o card nao andou. Foi o caso do Robinson:
+  5. ASSINOU PARADO  todos os documentos assinados e o card nao andou. Foi o caso do Gervásio:
                      assinou as 8h e ficou invisivel porque o alarme de lead quente o jogou numa
                      coluna que nao existe no quadro dele, e a esteira so olha quem esta em
                      "Contrato no ZapSign".
 
 O conserto dos casos 2 e 3 e o PLANO B da assinatura: o documento passa para 'tokenWhatsapp', que e
 so o codigo, sem desenho nenhum, o aviso e reenviado e a vendedora dona do card recebe tarefa. Foi
-exatamente assim que o Alex destravou hoje.
+exatamente assim que o Ivo destravou hoje.
 
 TRAVAS (o vigia erra para o lado de nao incomodar):
   * nada acontece sem --aplicar;
@@ -229,7 +229,7 @@ def marcar_fila_assinou(caso, card, aplicar):
     contratacao le para mover o card. So a marca: nada e enviado ao cliente.
 
     Por que isso existe (26/10/2026): a fila confere o ZapSign as 8h, as 13h e as 19h. Quem assina
-    no meio da tarde fica parado ate a rodada seguinte. O Marcelo Martini assinou os tres
+    no meio da tarde fica parado ate a rodada seguinte. O Valdo Sarmento assinou os tres
     documentos as 14h34, depois de o vigia ter trocado a assinatura dele para codigo pelo WhatsApp,
     e o card continuou em "Contrato no ZapSign" porque a fila ainda nao sabia. Marcando aqui, o
     vigia da contratacao move o card na proxima meia hora.
@@ -280,8 +280,8 @@ def card_por_id(con, cid):
 def card_do_telefone(con, tel, nome=''):
     """Acha o card pelo telefone, preferindo o do fluxo de contratacao.
 
-    Homonimo e numero repetido existem de monte: o Wellington tem cinco cards, dois deles no
-    mesmo quadro, e o Joel tem dois. Pegar "o mais recente" fazia o vigia julgar o card errado,
+    Homonimo e numero repetido existem de monte: o Ezequiel tem cinco cards, dois deles no
+    mesmo quadro, e o Quirino tem dois. Pegar "o mais recente" fazia o vigia julgar o card errado,
     entao a escolha e por quadro: primeiro a contratacao, depois a producao, e nome nunca serve de
     chave, so de ultimo desempate dentro do mesmo telefone.
     """
@@ -392,7 +392,7 @@ def inscrever_na_fila_de_documentos(cid):
     """Card que chega em Aguardando Documentos PRECISA estar na fila: e por ela que a
     varredura acha o cliente, guarda os arquivos na pasta e anda o card. Quando quem move
     e este vigia, a fase_assinado da esteira nao roda, e sem isto o cliente fica invisivel
-    (Marcelo Martini, 26/10/2026: 12 fotos sem classificar e card parado)."""
+    (Valdo Sarmento, 26/10/2026: 12 fotos sem classificar e card parado)."""
     try:
         con = _con()
         r = con.execute('select coalesce(contato_nome,""), coalesce(contato_telefone,"") '
@@ -518,13 +518,13 @@ def main():
                     continue
                 pendentes.append((tk, j, s))
                 # o nome de verdade esta no signatario, nao no card: o perfil de WhatsApp do
-                # Marcelo e "marcelomartini451" e o do Alex Queiroz e "empresa". Chamar o cliente
+                # Valdo e "valdosarmento451" e o do Ivo Quaresma e "empresa". Chamar o cliente
                 # pelo apelido do perfil e o erro que ja saiu uma vez hoje.
                 nome_real = nome_real or (s.get('name') or '')
 
         # sobra de refacao NAO e assinatura travada: quando a mesma peca ja esta assinada em outro
-        # documento, o pendente e lixo do dia em que o contrato foi refeito (Reginaldo tem uma
-        # "copia" do contrato parada desde julho, e o Wellington um jogo inteiro). Cobrar isso do
+        # documento, o pendente e lixo do dia em que o contrato foi refeito (Leopoldo tem uma
+        # "copia" do contrato parada desde julho, e o Ezequiel um jogo inteiro). Cobrar isso do
         # cliente seria pedir para ele assinar duas vezes a mesma coisa.
         sobras = [p for p in pendentes if tipo_doc(p[1].get('name') or '') in tipos_assinados]
         if sobras:
@@ -543,7 +543,7 @@ def main():
             # ANDA SOZINHO (Vitória, 26/10/2026: "varrer com menos tempo e mover os cards"): assinou
             # tudo e o lugar dele e "Assinado". Marca a fila, que e o que o vigia da contratacao
             # le, move o card e faz a travessia para a producao na hora, em vez de deixar o
-            # cliente esperando a rodada de meia em meia hora. O Marcelo Martini assinou as 14h34
+            # cliente esperando a rodada de meia em meia hora. O Valdo Sarmento assinou as 14h34
             # e o card dele ficaria parado ate as 19h.
             if card['pipe'] == PIPE_TRAB and (fantasma or card['etapa'] == COL_ZAPSIGN):
                 achados += 1
@@ -657,7 +657,7 @@ def main():
                     continue
                 if card['pipe'] not in PIPES_CONTRATACAO and not falou:
                     # ja e cliente, ou ja esta na producao, e nao reclamou agora: a peca pendente
-                    # pode ter sido resolvida no papel (o Reginaldo tem uma procuracao de 08/07
+                    # pode ter sido resolvida no papel (o Leopoldo tem uma procuracao de 08/07
                     # aberta 15 vezes, e o caso dele ja anda). Cobrar de novo seria pedir a mesma
                     # assinatura duas vezes, entao aqui o vigia so chama gente.
                     achados += 1
@@ -702,7 +702,7 @@ def main():
                     cabecalho_impresso = True
                 if card['pipe'] not in PIPES_CONTRATACAO:
                     # quem ja esta na producao ou em clientes tem documento de outro momento
-                    # parado (o Wellington pagou o GR e tem um jogo do trabalhista de 16/10 sem
+                    # parado (o Ezequiel pagou o GR e tem um jogo do trabalhista de 16/10 sem
                     # abrir). Reenviar sozinho confundiria o cliente: isso e conferencia humana.
                     print('   NUNCA ABRIU: %s, criado em %s, zero abertura. O card ja esta no '
                           'quadro %s, entao NAO reenvio sozinho.' % (nome_doc, nascido, card['pipe']))
