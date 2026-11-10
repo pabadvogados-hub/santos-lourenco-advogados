@@ -60,6 +60,10 @@ CADASTROS/
 !SISTEMA/frontend/portal/manifest.json
 !**/package.json
 !**/package-lock.json
+# configuracao e catalogos que o sistema PRECISA para subir (sem dado pessoal)
+!SISTEMA/backend/app/controladoria_motor/*.json
+!SISTEMA/backend/app/juridico/equipe.json
+!SISTEMA/backend/app/juridico/clientes_empresa.json
 
 # =============================================================================
 # AMBIENTE E LIXO
