@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """Vigia das tarefas "atrasadas que nao estao" (29/09/2026). Cron: 10 7,13 * * 1-5.
 
-Le o ADVBOX (so GET, pelas mesmas funcoes do espelho) e marca para CONFERIR as tarefas
-abertas, vencidas e de fora do ADVBOX. Nao fecha nada. Logica em app/tarefas_conferir.py.
+So faz sentido com sistema juridico externo espelhado (compara as tarefas de la com as daqui).
+Com SISTEMA_JURIDICO=nenhum (padrao do escritorio) sai sem fazer nada. Logica em app/tarefas_conferir.py.
 Uso: python3 tarefas_conferir.py [--ensaio]   (ensaio: roda numa copia em memoria e mostra)
 """
 import datetime as dt
+import os
 import sqlite3
 import sys
+
+if (os.getenv('SISTEMA_JURIDICO') or 'nenhum').strip().lower() == 'nenhum':
+    print('tarefas_conferir: sem sistema juridico externo (SISTEMA_JURIDICO=nenhum); nada a comparar.')
+    sys.exit(0)
 
 sys.path.insert(0, "/opt/santoslourenco/SYNC")
 sys.path.insert(0, "/opt/santoslourenco/SISTEMA/backend")

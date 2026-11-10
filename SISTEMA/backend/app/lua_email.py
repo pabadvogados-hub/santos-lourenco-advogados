@@ -18,9 +18,10 @@ import re
 import sys
 import urllib.parse
 
-TOKEN = os.environ.get("LUA_GMAIL_TOKEN", "/opt/santoslourenco/config/token_gmail_bruna_lua.json")
+TOKEN = os.environ.get("LUA_GMAIL_TOKEN", "/opt/santoslourenco/config/token_gmail_caixa_pecas.json")
 CLIENTE = os.environ.get("LUA_GMAIL_CLIENTE", "/opt/santoslourenco/config/oauth_credentials.json")
-CONTA = "operacional.bruna@sladvogados.com.br"
+from .juridico.contatos import CFG as _CFG
+CONTA = _CFG.valor("CAIXA_PECAS_EMAIL")
 ESCOPOS = ["https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"]
 REDIRECIONAR = "http://localhost"
 

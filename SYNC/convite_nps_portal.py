@@ -75,7 +75,7 @@ def fila():
     con.execute(nps.DDL)
     con.commit()
 
-    # (16/09/2026) por RODADA do NPS (ver nps.RODADA_DESDE): convite e resposta
+    # por RODADA do NPS (ver nps.RODADA_DESDE): convite e resposta
     # da rodada antiga nao impedem de chamar para avaliar o portal novo
     ja_chamados = {r[0] for r in con.execute(
         'SELECT cliente_id FROM portal_nps_convite WHERE ok=1 AND enviado_em>=?',

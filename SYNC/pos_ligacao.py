@@ -59,10 +59,10 @@ ETAPAS = {
 }
 SAI_DA_FILA = ("Lead Quente", "Lead Qualificado")   # de onde a fila_ligacao le
 
-PROMPT = """Voce e o assistente do Santos Lourenço Advogados, escritorio trabalhista de caminhoneiros.
+PROMPT = """Voce e o assistente do Santos Lourenço Advogados, escritorio trabalhista que defende trabalhadores.
 Acabou uma ligacao com um lead. Leia a transcricao e responda em JSON puro, sem texto fora do JSON:
 
-{"resumo": ["ate 5 linhas: o CASO da pessoa e o que foi decidido. Ligacao de caminhoneiro comeca com conversa fiada (time, cidade, estrada, outros processos do escritorio) - isso NAO entra no resumo"],
+{"resumo": ["ate 5 linhas: o CASO da pessoa e o que foi decidido. Ligacao costuma comecar com conversa fiada (time, cidade, familia, outros processos do escritorio) - isso NAO entra no resumo"],
  "combinado": "o que as duas partes combinaram fazer, em ate 20 palavras; vazio se nada foi combinado",
  "proximo_passo": "o que o ESCRITORIO tem que fazer, em ate 12 palavras; vazio se nao tem",
  "quando": "AAAA-MM-DD do proximo passo, ou vazio se a ligacao nao marcou dia",
@@ -90,7 +90,7 @@ DIAS = ["segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo"]
 
 
 # ============================================================
-# ENTREVISTA COMPLETA A PARTIR DA LIGACAO (23/09/2026)
+# ENTREVISTA COMPLETA A PARTIR DA LIGACAO
 # ------------------------------------------------------------
 # Os campos NAO ficam escritos aqui: saem de app/routers/ficha_entrevista.py em
 # tempo de execucao. Campo que a Vitória criar na aba entra sozinho no extrator,
@@ -128,7 +128,7 @@ def extrair_ficha(transcricao, campos):
     lista = "\n".join(linhas)
 
     prompt = (
-        "Voce e o assistente do Santos Lourenço Advogados, escritorio trabalhista de caminhoneiros.\n"
+        "Voce e o assistente do Santos Lourenço Advogados, escritorio trabalhista que defende trabalhadores.\n"
         "Abaixo esta a transcricao de uma ligacao com um cliente e, depois, a FICHA DE\n"
         "ENTREVISTA do escritorio. Preencha a ficha SO com o que a ligacao disse.\n\n"
         "REGRAS QUE NAO SE NEGOCIAM:\n"
@@ -213,16 +213,16 @@ def gravar_ficha(db, conversa_id, valores, aplicar):
 
 
 # ---------------------------------------------------------------------------
-# FUNIL DE FECHADO (regra do Joab, 23/09/2026): a entrevista so e preenchida
+# FUNIL DE FECHADO: a entrevista so e preenchida
 # para quem ja fechou. Preencher ficha de lead que nao fechou e trabalho jogado
 # fora e enche a aba de dado que ninguem vai usar.
 #   pipeline -> None = todas as colunas (menos Perdido) | set = so estas colunas
 FUNIL_FECHADO = {
-    20: None,                                   # Santos Lourenço Contratacao
-    18: None,                                   # Santos Lourenço Producao
-    11: None,                                   # Santos Lourenço Clientes
+    20: None,                                   # Contratação
+    18: None,                                   # Produção
+    11: None,                                   # Clientes
     10: {"Pós-Reunião de Fechamento", "Contrato / Assinatura",
-         "Elaboração de Contrato", "Ganho"},   # Santos Lourenço Leads: so o fim do funil
+         "Elaboração de Contrato", "Ganho"},   # Reclamantes: so o fim do funil
 }
 
 
@@ -241,7 +241,7 @@ def todas_ligacoes(notas, limite=14000):
     """LISTA com cada ligacao da conversa, da mais antiga para a mais nova, sem
     os blocos de resumo do pos-ligacao.
 
-    Uma por vez, e nao tudo junto: medido em 23/09/2026, 14 mil caracteres levam
+    Uma por vez, e nao tudo junto: medido em producao, 14 mil caracteres levam
     ~95s e trazem 12 campos; 60 mil estouram os 300s e voltam VAZIO. Transcricao
     grande derrubava a extracao inteira e deixava o cliente com ficha em branco.
     Cada ligacao que passar do limite fica com o FIM dela, que e onde costuma

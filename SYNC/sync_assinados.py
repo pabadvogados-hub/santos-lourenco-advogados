@@ -49,7 +49,7 @@ from googleapiclient.http import MediaInMemoryUpload
 DB = os.getenv('SISTEMA_DB', '/opt/santoslourenco/SISTEMA/backend/sistema_sl.db')
 LOG = os.path.join(HERE, 'sync_assinados_log.json')          # ao lado do script, nunca relativo
 TOKEN_DRIVE = os.getenv('SL_TOKEN_GOOGLE', '/opt/santoslourenco/config/token.json')
-RAIZ_RECLAMANTE = os.getenv('GOOGLE_PASTA_RECLAMANTE', '154Iv5J0KuoEWKGB_y3ddOM4qn4FtZgiZ')
+RAIZ_RECLAMANTE = os.getenv('GOOGLE_PASTA_RECLAMANTE', '')
 SUBPASTA = 'DOCUMENTOS DO CLIENTE'
 DIAS = 30
 STOP = {'DE', 'DA', 'DO', 'DOS', 'DAS', 'E', 'LTDA', 'ME', 'EIRELI'}

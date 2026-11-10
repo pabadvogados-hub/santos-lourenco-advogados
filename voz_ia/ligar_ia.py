@@ -2,7 +2,7 @@
 
 Uso: python ligar_ia.py <telefone com DDI> <agent_id> [segundos_max] [nome]
 
-- Liga pela linha 1 do SISTEMA (wa_numeros id 1). Se a linha estiver em ligacao, desiste.
+- Liga pela linha DAPI_NUMERO_ID do SISTEMA (padrao wa_numeros id 1). Se a linha estiver em ligacao, desiste.
 - So abre a conversa com a IA depois do "accepted" (cliente atendeu).
 - Audio para o cliente sai em quadros de 20 ms (640 bytes) no ritmo real; silencio quando a IA nao fala.
 - Transcricao em /opt/santoslourenco/voz_ia/logs/<callId>.txt
@@ -31,7 +31,8 @@ UA = {"User-Agent": "Mozilla/5.0 SL-voz-ia"}
 
 def credencial():
     con = sqlite3.connect(DB, timeout=30)
-    inst, chave = con.execute("select zapi_instance, zapi_token from wa_numeros where id=1").fetchone()
+    nid = int(os.getenv("DAPI_NUMERO_ID") or 1)      # linha que liga (padrao: a linha de Reclamantes, id 1)
+    inst, chave = con.execute("select zapi_instance, zapi_token from wa_numeros where id=?", (nid,)).fetchone()
     return inst.split(":", 1)[1], chave
 
 

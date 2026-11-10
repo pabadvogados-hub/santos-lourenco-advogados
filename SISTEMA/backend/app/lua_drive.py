@@ -13,11 +13,11 @@ import zipfile
 
 from .lua_autos import _dividir_itens, _dividir_texto, _escolher, _inteiro
 
-RAIZES = {
-    "1rmPPl2V-oxise66RRYlZD4dKC8SDgttU",        # 09 - NÚCLEOS JURÍDICOS (clientes e Peças Padrão)
-    "1U2ER02PciGUHL0yiKicJ8HvDfq_973Of",        # a pasta da própria Vitória
-}
-BLOQUEADOS = {"1gM4IWnBb_6fML4eOg--6P-pZ-wwRaFV1c9JXskLHYzY"}     # PDI da Vitória: a Vitória ainda não passou para ela (D22)
+from .juridico.contatos import CFG as _CFG
+
+# Pastas do Drive que o assistente pode ler (lista fechada): LUA_DRIVE_RAIZES no .env, ids separados por virgula.
+RAIZES = set(_CFG.lista('LUA_DRIVE_RAIZES'))
+BLOQUEADOS = set(_CFG.lista('LUA_DRIVE_BLOQUEADOS'))
 
 PASTA = "application/vnd.google-apps.folder"
 ATALHO = "application/vnd.google-apps.shortcut"

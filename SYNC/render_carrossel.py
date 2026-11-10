@@ -34,10 +34,9 @@ BASE = "/opt/santoslourenco/SISTEMA/backend"
 DB = os.path.join(BASE, "sistema_sl.db")
 MEDIA = os.getenv("SL_MEDIA_DIR", "/opt/santoslourenco/media")
 SAIDA = os.path.join(MEDIA, "carrossel")
-PUBLICO = "https://sistema.santoslourenco.adv.br/media/carrossel/%s"
-# JusMoto e o perfil @sl.caminhoneiros: azul, vermelho e branco, sem ouro.
-# O carrossel_sl.html (marinho e ambar) era da marca-mae e estava errado aqui.
-TEMPLATE = os.getenv("SL_CARROSSEL_TPL", "/opt/santoslourenco/config/carrossel_jusmoto.html")
+PUBLICO = (os.getenv("PUBLIC_BASE_URL") or "https://sistema.santoslourenco.adv.br").rstrip("/") + "/media/carrossel/%s"
+# Modelo HTML do carrossel com a identidade do escritorio (bordo e dourado). Ver SL_CARROSSEL_TPL.
+TEMPLATE = os.getenv("SL_CARROSSEL_TPL", "/opt/santoslourenco/config/carrossel_sl.html")
 CHROME = "/usr/bin/google-chrome"
 LARGURA, ALTURA = 1080, 1350
 

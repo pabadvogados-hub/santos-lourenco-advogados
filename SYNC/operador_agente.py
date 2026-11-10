@@ -87,9 +87,9 @@ O QUE VOCÊ TEM (você roda como o usuário do sistema):
 - Código do sistema, só para entender as regras (NÃO edite): {BACKEND}/app (routers/*.py) e robôs em /opt/santoslourenco/SYNC.
 - Integrações: sys.path.insert(0, '/opt/santoslourenco/INTEGRACOES') e dotenv.load_dotenv('/opt/santoslourenco/config/.env').
   - google_integration.autenticar_google() devolve (drive, docs) da conta do escritório. Clientes ficam em
-    RECLAMANTE (id 154Iv5J0KuoEWKGB_y3ddOM4qn4FtZgiZ) > NOME DO CLIENTE > ATOS INTERNOS / DOCUMENTOS DO CLIENTE /
+    RECLAMANTE (id em GOOGLE_PASTA_RECLAMANTE no .env) > NOME DO CLIENTE > ATOS INTERNOS / DOCUMENTOS DO CLIENTE /
     PASTA DO CLIENTE.
-  - advbox_integration: API do ADVBOX.
+  - sistema_juridico: o escritorio nao usa sistema juridico externo; tarefas e processos ficam no banco.
 - Sua pasta de trabalho: {work} (arquivos temporários e o que gerar para a pessoa).
 
 REGRAS DA CASA (obrigatórias):

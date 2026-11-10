@@ -152,13 +152,13 @@ def meus_leads(c, uid, dias=3):
         return {"leads": []}
     desde = (dt.datetime.utcnow() - dt.timedelta(days=max(1, min(int(dias or 3), 30)))).strftime("%Y-%m-%d %H:%M:%S")
     try:
-        linhas = c.execute("SELECT id, contato_nome, etapa, status, atualizado_em, e_caminhoneiro FROM wa_conversas "
+        linhas = c.execute("SELECT id, contato_nome, etapa, status, atualizado_em, e_reclamante FROM wa_conversas "
                            "WHERE LOWER(atendente_email)=LOWER(?) AND atualizado_em >= ? ORDER BY atualizado_em DESC LIMIT 40",
                            (u["email"], desde)).fetchall()
     except sqlite3.OperationalError:
         return {"leads": []}
     return {"leads": [{"conversa": r["id"], "nome": r["contato_nome"], "etapa": r["etapa"], "status": r["status"],
-                       "ultima_movimentacao_utc": str(r["atualizado_em"])[:16], "caminhoneiro": bool(r["e_caminhoneiro"])}
+                       "ultima_movimentacao_utc": str(r["atualizado_em"])[:16], "reclamante": bool(r["e_reclamante"])}
                       for r in linhas]}
 
 
@@ -593,7 +593,7 @@ def sistema(c, ag, pessoa, via="texto", ctx=None):
     orient = [r["texto"] for r in c.execute("SELECT texto FROM agente_orientacoes WHERE usuario_id=? AND ativo=1 "
                                             "ORDER BY id", (ag["usuario_id"],))]
     txt = ("Você é %s, assistente de IA de %s no Santos Lourenço Advogados (escritório trabalhista em Suzano; a "
-           "maioria dos clientes é caminhoneiro; titular: Dra. Vitória Karen Barbosa dos Santos Lourenço, OAB/SP 490.295).\n"
+           "maioria dos clientes é trabalhador reclamante; titular: Dra. Vitória Karen Barbosa dos Santos Lourenço, OAB/SP 490.295).\n"
            "Seu foco com essa pessoa: %s.\n"
            "Hoje é %s, %s, %s.\n\n"
            "Como trabalhar:\n"

@@ -5,7 +5,7 @@ Por que existe: a foto so chega quando o proprio webhook traz o campo "photo".
 Muita conversa antiga (e cadastro manual) ficou so com as iniciais. Aqui a
 gente pergunta ao Z-API (GET /profile-picture) e salva a imagem local, no mesmo
 lugar e no mesmo formato do _cache_avatar do backend
-(/opt/santoslourenco/media/avatars/{id}.jpg -> https://sistema.santoslourenco.adv.br/media/avatars/{id}.jpg).
+(MEDIA_DIR/avatars/{id}.jpg -> PUBLIC_BASE_URL/media/avatars/{id}.jpg).
 
 Contato que escondeu a foto responde "not-authorized": isso nao tem conserto,
 entao a tentativa fica registrada e so volta a ser feita depois de 7 dias.
@@ -23,12 +23,12 @@ import time
 from datetime import datetime, timedelta
 
 import requests
-sys.path.insert(0, "/opt/santoslourenco/SYNC")  # 24/09/2026: saida unica de WhatsApp (D-API)
+sys.path.insert(0, "/opt/santoslourenco/SYNC")  # saida unica de WhatsApp (D-API)
 import wa_dapi  # noqa: E402
 
 DB = "/opt/santoslourenco/SISTEMA/backend/sistema_sl.db"
 MEDIA = "/opt/santoslourenco/media/avatars"
-URL_PUBLICA = "https://sistema.santoslourenco.adv.br/media/avatars/%d.jpg"
+URL_PUBLICA = (os.getenv("PUBLIC_BASE_URL") or "https://sistema.santoslourenco.adv.br").rstrip("/") + "/media/avatars/%d.jpg"
 ESTADO = "/opt/santoslourenco/SYNC/fotos_contatos_estado.json"
 DIAS_ESPERA = 7
 PAUSA = 1.2
@@ -48,7 +48,7 @@ def main():
     a = ap.parse_args()
 
     db = sqlite3.connect(DB, timeout=30)
-    # 24/09/2026: foto de perfil pela D-API (wa_dapi.foto_perfil); a Z-API caiu
+    # foto de perfil pela D-API (wa_dapi.foto_perfil)
 
     estado = carregar_estado()
     agora = datetime.utcnow()

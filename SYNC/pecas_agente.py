@@ -298,7 +298,7 @@ def _preparar_recortes(texto, pasta):
         real = os.path.realpath(caminho if os.path.isabs(caminho) else os.path.join(pasta, caminho))
         if not (real.startswith(base) and os.path.isfile(real) and real.lower().endswith((".png", ".jpg", ".jpeg"))):
             return "\n\n[CONFERIR RECORTE: %s]\n\n" % (legenda or "imagem não encontrada")
-        marca = "PABRECORTE%04dFIM" % len(recortes)
+        marca = "SLRECORTE%04dFIM" % len(recortes)
         recortes.append((marca, real, legenda))
         return "\n\n%s\n\n" % marca
 

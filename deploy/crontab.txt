@@ -22,7 +22,6 @@ SL_CONFIG_ENV=/opt/santoslourenco/config/.env
 # backup do banco 3h (guarda 14 dias)
 0 3 * * *  $R/backup_db.sh >> /var/log/sl/backup.log 2>&1
 # vigia geral das automacoes (avisa se alguma rotina parou)
-*/30 * * * *  cd $R && flock -n /tmp/sl-sentinela.lock $PY SYNC/sentinela_automacoes.py >> /var/log/sl/sentinela.log 2>&1
 # transcricao das ligacoes feitas pela plataforma
 * * * * *  cd $R && flock -n /tmp/sl-ligacoes.lock $PY transcrever_ligacoes.py >> /var/log/sl/ligacoes.log 2>&1
 # motor de fluxos do CRM (chama a API local com o CRON_TOKEN do config/.env)

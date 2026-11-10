@@ -2,7 +2,7 @@
 """
 leitura_da_conversa.py  -  LER ANTES DE PEDIR.
 
-ORDEM DA VITÓRIA (24/09/2026):
+REGRA DA CASA:
 
   "quero que você cadastre um vigia para fazer uma leitura da conversa antes de
    fazer um novo pedido de documento, porque ela precisa:
@@ -13,9 +13,8 @@ ORDEM DA VITÓRIA (24/09/2026):
 
 POR QUE ISSO NASCEU. O robô pedia documento sem saber direito o que já tinha.
 Pior: quando o cliente mandava, a esteira só dizia QUE TIPO era o arquivo e
-nunca se DAVA PARA LER. A CNH do Carlos Henrique entrou como "cnh" estando
-ilegível, o intake seguiu com ela e o contrato CT. 294/2026 foi assinado com
-CPF e RG em branco, no formato {{campo do modelo}}.
+nunca se DAVA PARA LER. Uma CNH ilegível entrava como "cnh", o intake seguia com
+ela e o contrato podia sair com CPF e RG em branco, no formato {{campo do modelo}}.
 
 Este módulo é o PASSO ZERO de toda rodada do vigia de contratação. Ele devolve
 um RETRATO da conversa e não decide nada, não fala com o cliente e não move
@@ -45,8 +44,8 @@ except ImportError:                                   # rodando de outra pasta
 # quanto tempo um documento lido continua valendo sem reler (dias)
 VALIDADE_LEITURA = 90
 
-# quantas mídias novas ler por rodada, por conversa. A conversa de um motorista
-# passa de 40 arquivos (o Carlos tinha 46): ler tudo de uma vez numa rodada de
+# quantas mídias novas ler por rodada, por conversa. A conversa de um cliente
+# pode passar de 40 arquivos: ler tudo de uma vez numa rodada de
 # 30 em 30 minutos trava o vigia e queima assinatura à toa. O resto entra na
 # rodada seguinte, e o que interessa para o contrato (CNH, comprovante, CTPS)
 # costuma vir nas primeiras mensagens depois do pedido.

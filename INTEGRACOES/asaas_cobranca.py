@@ -85,7 +85,7 @@ def so_digitos(s):
 
 def telefone_asaas(telefone):
     """Celular no formato que o Asaas aceita: DDD + 9 digitos, sem o 55 do pais.
-    O numero do WhatsApp costuma vir sem o 9 (554991184045): celular de 8 digitos
+    O numero do WhatsApp costuma vir sem o 9 (ex.: 55DD8XXXXXXX): celular de 8 digitos
     (comeca com 6 a 9) ganha o 9; fixo (comeca com 2 a 5) fica como esta.
     Numero zerado ou de tamanho invalido volta vazio, porque o Asaas grava e depois
     avisa 'numero de telefone incorreto' (6 clientes do GR assim em 10/2026)."""

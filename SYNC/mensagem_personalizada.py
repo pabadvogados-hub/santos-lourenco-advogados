@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Mensagem de retomada escrita UMA A UMA, a partir da conversa de cada lead.
 
-Pedido da Vitória em 11/09/2026: humana, personalizada, "como se estivessemos
-pensando unicamente nele". A IA le o que o proprio motorista contou e escreve
+Humana e personalizada, "como se estivessemos pensando unicamente nele". A IA le o que
+o proprio trabalhador contou e escreve
 uma mensagem so para ele, terminando com a pergunta: ainda esta na empresa ou
 ja saiu? Nao pode inventar fato, prometer resultado nem usar travessao.
 
@@ -20,17 +20,17 @@ from datetime import datetime, timedelta
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 DB = '/opt/santoslourenco/SISTEMA/backend/sistema_sl.db'
-CLAUDE = '/root/.local/bin/claude'
+CLAUDE = os.getenv('SL_CLAUDE_BIN', os.path.expanduser('~/.local/bin/claude'))
 AGORA_BR = datetime.utcnow() - timedelta(hours=3)
 
-REGRAS = """Voce escreve mensagens de WhatsApp em nome do escritorio Santos Lourenço Advogados, que defende motoristas de caminhao na Justica do Trabalho.
+REGRAS = """Voce escreve mensagens de WhatsApp em nome do escritorio Santos Lourenço Advogados, que defende trabalhadores na Justica do Trabalho.
 
-TAREFA: retomar o contato com um motorista que procurou o escritorio ha algumas semanas e perguntar se ele ainda esta na mesma empresa ou se ja saiu.
+TAREFA: retomar o contato com um trabalhador que procurou o escritorio ha algumas semanas e perguntar se ele ainda esta na mesma empresa ou se ja saiu.
 
 COMO ESCREVER:
 - Como uma pessoa de verdade do escritorio que lembrou DELE especificamente. Ele tem que sentir que a mensagem foi escrita so para ele.
-- Cite um ou dois detalhes que ELE MESMO contou (rotina, rota, cidade, o que incomodava, como era tratado), usando o jeito dele de falar. Nunca invente nada que nao esteja na conversa. Se ele nao contou detalhe nenhum, nao invente: diga que ele procurou a gente querendo saber sobre os direitos do motorista.
-- Traga SEMPRE uma frase curta com a ideia de justica para o motorista: que o trabalho dele merece respeito e que o escritorio existe para que a justica chegue a quem vive na estrada. Escreva com suas palavras, varie, nao copie esta frase. Sem exagero, sem dramatizar.
+- Cite um ou dois detalhes que ELE MESMO contou (funcao, rotina, escala, o que incomodava, como era tratado), usando o jeito dele de falar. Nunca invente nada que nao esteja na conversa. Se ele nao contou detalhe nenhum, nao invente: diga que ele procurou a gente querendo saber sobre os seus direitos trabalhistas.
+- Traga SEMPRE uma frase curta com a ideia de justica para o trabalhador: que o trabalho dele merece respeito e que o escritorio existe para que a justica chegue a quem trabalha. Escreva com suas palavras, varie, nao copie esta frase. Sem exagero, sem dramatizar.
 - Trechos marcados com (audio) foram transcritos automaticamente e costumam ter palavras erradas: use so a ideia geral deles, NUNCA cite palavras ou expressoes desses trechos. Se qualquer outro trecho parecer confuso ou sem sentido, ignore.
 - Ele ainda NAO e cliente. Nunca diga que o escritorio esta acompanhando, cuidando, analisando ou de olho no caso dele.
 - Antes de responder, releia cada frase e pergunte: um brasileiro falaria assim no WhatsApp? Reescreva qualquer frase estranha, forcada ou sem sentido.
@@ -50,7 +50,7 @@ PROIBIDO:
 - Mencionar IA, robo, sistema, automacao ou classificacao.
 - Formalidade ("Prezado", "Sr.", "atenciosamente").
 
-SE NAO FOR MOTORISTA: se pela conversa ficar claro que a pessoa nao e motorista nem trabalhador procurando seus direitos (e empresa, propaganda, cobranca, banco, numero errado, alguem vendendo algo), responda apenas a palavra PULAR.
+SE NAO FOR LEAD TRABALHISTA: se pela conversa ficar claro que a pessoa nao e trabalhador procurando seus direitos (e empresa, propaganda, cobranca, banco, numero errado, alguem vendendo algo), responda apenas a palavra PULAR.
 
 Devolva SOMENTE o texto da mensagem, sem aspas e sem explicacao."""
 
@@ -63,7 +63,7 @@ SIGLA_IA = re.compile(r'\bIA\b')   # so a sigla maiuscula: "ia" minusculo e o ve
 def primeiro_nome(n):
     n = ''.join(c for c in (n or '') if c.isalpha() or c == ' ')
     p = (n.split() or [''])[0]
-    ruins = {'regra', 'lead', 'dr', 'qra', 'motorista', 'caminhoneiro', 'sem', 'nome'}
+    ruins = {'regra', 'lead', 'dr', 'sem', 'nome', 'cliente', 'trabalhador'}
     if len(p) < 3 or len(p) > 14 or p.lower() in ruins:
         return ''
     return p.capitalize()
@@ -96,7 +96,7 @@ MODELO_LEITURA = os.getenv('FLUXO_MODELO_LEITURA', 'claude-haiku-4-5')
 def chamar(prompt, modelo=None, max_tokens=700):
     """Primeiro a API com a chave do escritorio, depois o Claude do servidor.
 
-    O login do CLI expira sozinho e sem aviso (aconteceu em 11/09/2026 no meio
+    O login do CLI expira sozinho e sem aviso (ja aconteceu no meio
     do trabalho), entao ele e o plano B, nao o principal.
     """
     from dotenv import load_dotenv
@@ -125,7 +125,7 @@ def chamar(prompt, modelo=None, max_tokens=700):
 # quem falou pouco recebe mensagem parecida com a do vizinho, e texto repetido e
 # sinal de spam para o WhatsApp: cada mensagem sorteia um jeito de comecar
 ANGULOS = [
-    'Comece perguntando como ele esta, se a estrada esta tranquila.',
+    'Comece perguntando como ele esta, se a rotina anda mais tranquila.',
     'Comece dizendo que passou pelo contato dele hoje e lembrou dele.',
     'Comece falando do tempo que passou desde a conversa que ele teve com a gente.',
     'Comece direto, sem rodeio, dizendo a que veio.',
@@ -140,14 +140,14 @@ def escrever(ctx, tentativa=1):
     regras += '\n\nJEITO DE ABRIR ESTA MENSAGEM: %s Escreva diferente de qualquer modelo pronto.' \
               % random.choice(ANGULOS)
     if ctx.get('revisita'):
-        # revisita de 60 dias (aprovada pela Vitória em 22/09/2026): ele ja respondeu que ainda trabalhava
+        # revisita de 60 dias: ele ja respondeu que ainda trabalhava
         r = ctx['revisita']
         regras += ('\n\nESTA MENSAGEM E UMA REVISITA. Em %s ele respondeu que ainda estava na mesma empresa '
                    '(o que ele escreveu: "%s"). Retome lembrando, com leveza, que da ultima vez ele contou que '
                    'ainda estava la, e pergunte se continua na mesma empresa ou se ja saiu. Nao copie a resposta '
                    'dele palavra por palavra, nao cobre e nao pressione.'
                    % (r.get('quando') or 'algumas semanas atras', (r.get('resposta') or '')[:200]))
-    pedido = ("%s\n\nDADOS DO MOTORISTA\nPrimeiro nome: %s\nProcurou o escritorio ha cerca de %d semana(s).\n"
+    pedido = ("%s\n\nDADOS DO TRABALHADOR\nPrimeiro nome: %s\nProcurou o escritorio ha cerca de %d semana(s).\n"
               "Resumo do caso feito pelo escritorio: %s\nO QUE ELE MESMO ESCREVEU NA CONVERSA (em ordem):\n%s\n"
               % (regras, ctx['nome'] or '(sem nome, nao use nome)', ctx['semanas'], ctx['resumo'] or '-',
                  ctx['dele'] or '(quase nada)'))
@@ -169,7 +169,7 @@ def conferir(msg):
         return 'palavra proibida: %s' % PROIBIDAS.search(msg).group(0)
     if SIGLA_IA.search(msg):
         return 'mencionou IA'
-    # pode terminar com emoji depois da pergunta: "ja saiu? 🚛"
+    # pode terminar com emoji depois da pergunta
     if not re.sub(r'[^\w?]+$', '', msg.strip()).endswith('?'):
         return 'nao termina com a pergunta'
     if 'Santos Lourenço' not in msg:
@@ -187,7 +187,7 @@ def amostra(n):
         ("morno, nao disse se saiu", "t.temperatura='morno' and t.situacao='nao_informado'"),
         ("frio, falou pouco", "t.temperatura='frio' and t.situacao='nao_informado' and t.violacoes in ('','[]')"),
         ("frio com algum relato", "t.temperatura='frio' and t.violacoes not in ('','[]')"),
-        ("contato mais antigo", "t.situacao in ('nao_informado','trabalhando') and v.criado_em < '2026-07-25'"),
+        ("contato mais antigo", "t.situacao in ('nao_informado','trabalhando') and v.criado_em < date('now','-60 day')"),
     ][:n]
     for rotulo, cond in perfis:
         cid = con.execute(

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Integracao Google Calendar - Agenda do Santos Lourenço Advogados (sladvogados@gmail.com).
+Integracao Google Calendar - Agenda do Santos Lourenço Advogados (conta AGENDA_EMAIL_PRINCIPAL do .env).
 
 Usada para cadastrar PRAZOS FATAIS (PF) da esteira de pecas. O evento nasce como
 dia inteiro na data do prazo, com convidados e lembretes escalonados.
@@ -36,11 +36,8 @@ CALENDAR_ID = os.getenv('GCAL_SL_ID', 'primary')
 TZ = 'America/Sao_Paulo'
 
 # Convidados padrao dos prazos fatais de protocolo
-CONVIDADOS_PF = [
-    'vitoria.lourenco@sladvogados.com.br',
-    'operacional.bruna@sladvogados.com.br',
-    'operacional.flavia@sladvogados.com.br',
-]
+import escritorio_config as _CFG  # noqa: E402
+CONVIDADOS_PF = _CFG.lista('AGENDA_CONVIDADOS')
 
 
 class CalendarIndisponivel(RuntimeError):
@@ -64,7 +61,7 @@ def autenticar(forcar_login=False, permitir_browser=True):
                 )
             if not os.path.exists(CRED_PATH):
                 raise CalendarIndisponivel(f'Credenciais OAuth nao encontradas em {CRED_PATH}')
-            print('Abrindo o navegador... faca login com sladvogados@gmail.com e clique em Permitir.')
+            print('Abrindo o navegador... faca login com %s e clique em Permitir.' % (_CFG.AGENDA_EMAIL_PRINCIPAL or 'a conta Google da agenda do escritorio'))
             flow = InstalledAppFlow.from_client_secrets_file(CRED_PATH, SCOPES)
             creds = flow.run_local_server(port=0)
         with open(TOKEN_PATH, 'w') as f:

@@ -8,9 +8,9 @@ nao chegou a Producao da Inicial. As 9h a foto do CRM e o fechamento do dia ante
 Ordem de trabalho (Vitória, 02/10/2026):
   1. ASSINOU E NAO MANDOU DOCUMENTOS: quem assinou o contrato e ainda nao tem a inicial pronta, em
      qualquer quadro do CRM (o primeiro e mais importante);
-  2. COBRAR ASSINATURA: quem esta no Santos Lourenço Contratacao com o contrato no ZapSign sem assinar;
+  2. COBRAR ASSINATURA: quem esta no Contratação com o contrato no ZapSign sem assinar;
   3. RECUPERAR: quem disse que fechou e nao respondeu ou se perdeu (sem os documentos do contrato,
-     Perdido na contratacao, ou de volta ao Santos Lourenço Leads). Quem marcou "sem interesse" ou foi
+     Perdido na contratacao, ou de volta ao Reclamantes). Quem marcou "sem interesse" ou foi
      desqualificado fica de fora: quem ajusta os cards e a Rafa.
 
 Regras da Vitória (01/10/2026): so ACRESCENTA a tarefa do dia; nao altera nem cancela tarefa nenhuma, nao
@@ -32,7 +32,7 @@ if hasattr(sys.stdout, 'buffer'):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
 from dotenv import load_dotenv
-load_dotenv(os.getenv('SL_CONFIG_ENV', '/opt/casaldaia/backend/.env'))
+load_dotenv(os.getenv('SL_CONFIG_ENV', '/opt/santoslourenco/config/.env'))
 load_dotenv('/opt/santoslourenco/config/.env', override=False)
 import requests  # noqa: E402
 
@@ -165,7 +165,7 @@ def montar(agora=None):
         itens.append(it)
         vistos.add(cid)
 
-    # ---- 2. cobrar assinatura (Santos Lourenço Contratacao com contrato no ZapSign) ---------------------
+    # ---- 2. cobrar assinatura (Contratação com contrato no ZapSign) ---------------------
     for (cid,) in con.execute("select id from wa_conversas where pipeline_id=? and etapa<>'Perdido'", (P_CONTRATACAO,)):
         if cid in vistos:
             continue
@@ -220,7 +220,7 @@ def montar(agora=None):
 
     itens.sort(key=lambda i: (i['prio'], i['dra'], -(i['dias'] or 0)))
     tit = {1: '1️⃣ ASSINOU E NÃO MANDOU DOCUMENTOS (o primeiro e mais importante)',
-           2: '2️⃣ COBRAR ASSINATURA (Santos Lourenço Contratação)',
+           2: '2️⃣ COBRAR ASSINATURA (Contratação)',
            3: '3️⃣ RECUPERAR: FECHOU E NÃO RESPONDEU OU SE PERDEU'}
     n = {p: sum(1 for i in itens if i['prio'] == p) for p in (1, 2, 3)}
     ontem = hoje - timedelta(days=3 if hoje.weekday() == 0 else 1)

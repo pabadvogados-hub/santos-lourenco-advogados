@@ -25,7 +25,7 @@ import re
 import sqlite3
 import time
 
-QUADROS_FECHAMENTO = (11, 18, 20, 26)
+QUADROS_FECHAMENTO = (11, 18, 20)
 ALTA, MEDIA, BAIXA = 'alta', 'media', 'baixa'
 
 

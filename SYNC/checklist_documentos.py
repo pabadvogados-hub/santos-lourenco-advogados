@@ -6,9 +6,9 @@ Problema que este modulo resolve (Vitória, 25/08/2026). O `CHECKLIST_PADRAO` do
 novo: o `cobranca_assinatura.py` chama o enroll sem passar checklist quando o
 cliente assina. Resultado, duas vezes:
 
-  - Jhonatan (14/08/2026): cobrado por B.O. de roubo e por TRCT, com o contrato
+  - um cliente (08/2026): cobrado por B.O. de roubo e por TRCT, com o contrato
     de trabalho AINDA EM VIGOR. Corrigido a mao pela Vitória.
-  - Jose Carlos de Souza (25/08/2026): cobrado por "Boletim de Ocorrencia do
+  - outro cliente (08/2026): cobrado por "Boletim de Ocorrencia do
     roubo/sequestro" durante CINCO toques, quando na reuniao de fechamento ele
     afirmou expressamente que NUNCA foi assaltado nem sequestrado.
 
@@ -244,7 +244,7 @@ def _pasta_do_card(cid):
 def _ficha_texto(nome, cid):
     """Fallback de insumo: a FICHA DO CLIENTE gerada no intake (tem o resumo
     do caso). Vale quando a transcricao nunca subiu - caso a equipe,
-    11/09/2026, que levou lista de caminhoneiro num caso de gravidez."""
+    11/09/2026, que levou a lista comum num caso de gravidez."""
     try:
         import requests as rq
         import varredura_provas as vp
@@ -284,10 +284,10 @@ def montar(nome, telefone, checklist, cid=None):
     """Monta a lista de documentos DO CASO (Vitória, 11/09/2026).
 
     Insumo: transcricao da reuniao; na falta, a Ficha do Cliente do intake.
-    Caso de motorista: poda a lista base (so contradicao EXPRESSA remove).
-    Caso que NAO e de motorista: a lista base nao serve; o modelo escreve uma
+    Caso comum: poda a lista base (so contradicao EXPRESSA remove).
+    Caso especial: a lista base nao serve; o modelo escreve uma
     lista propria do caso (a a equipe, gestante, recebeu cobranca de B.O. de
-    roubo e TRCT de caminhoneiro - nunca mais).
+    itens que nao se aplicam ao caso - nunca mais).
 
     Retorna (itens, origem) quando ha lista confiavel;
     (None, motivo) quando NAO ha - e o chamador decide segurar a cobranca.
@@ -327,15 +327,15 @@ def montar(nome, telefone, checklist, cid=None):
         "Voce prepara a LISTA DE DOCUMENTOS que sera cobrada por WhatsApp de "
         "um cliente do Santos Lourenço Advogados (escritorio trabalhista).\n\n"
         "Abaixo estao o RELATO DO CASO (transcricao da reuniao de fechamento "
-        "ou ficha do cliente) e a LISTA BASE, desenhada para MOTORISTA "
-        "PROFISSIONAL DE CARGAS.\n\n"
-        "PASSO 1: decida pelo relato se o caso e de motorista profissional.\n\n"
-        "PASSO 2a, SE FOR MOTORISTA: confira a lista base e aponte APENAS os "
+        "ou ficha do cliente) e a LISTA BASE, desenhada para o CASO TRABALHISTA "
+        "COMUM (verbas rescisorias, jornada, horas extras, intervalo, vinculo).\n\n"
+        "PASSO 1: decida pelo relato se o caso e trabalhista comum ou ESPECIAL (gestante, acidente de trabalho, doenca ocupacional, assedio, rescisao indireta por fato especifico).\n\n"
+        "PASSO 2a, SE FOR COMUM: confira a lista base e aponte APENAS os "
         "itens que o relato CONTRADIZ EXPRESSAMENTE (o cliente disse que nao "
         "existe, nao aconteceu ou nao tem como fornecer). REGRAS RIGIDAS: "
         "silencio NAO e contradicao; duvida MANTEM o item; nunca invente item "
         "novo; para cada remocao cite o TRECHO literal que justifica.\n\n"
-        "PASSO 2b, SE NAO FOR MOTORISTA: a lista base NAO SERVE para este "
+        "PASSO 2b, SE FOR ESPECIAL: a lista base NAO SERVE para este "
         "cliente. Monte uma lista NOVA com 4 a 7 itens de documentos e provas "
         "adequados a ESTE caso concreto: so peca o que a pessoa plausivelmente "
         "tem (carteira de trabalho, exames e atestados, conversas com o "
@@ -348,7 +348,7 @@ def montar(nome, telefone, checklist, cid=None):
         '"trecho": "..."}]}\n'
         "ou\n"
         '{"caso_motorista": false, "lista_nova": ["...", "..."]}\n\n'
-        "=== LISTA BASE (motorista) ===\n"
+        "=== LISTA BASE (caso comum) ===\n"
         + "\n".join(f"- {i}" for i in itens)
         + "\n\n=== RELATO DO CASO ===\n" + texto[:100000])
 
@@ -380,7 +380,7 @@ def montar(nome, telefone, checklist, cid=None):
         if not 3 <= len(lista) <= 8:
             _log(f"[checklist] {nome}: lista gerada invalida ({len(lista)} itens)")
             return None, "resposta_invalida"
-        _log(f"[checklist] {nome}: caso NAO e de motorista; lista propria "
+        _log(f"[checklist] {nome}: caso especial; lista propria "
              f"com {len(lista)} itens (fonte: {fonte})")
         for i in lista:
             _log(f"    ITEM: {i}")
@@ -388,7 +388,7 @@ def montar(nome, telefone, checklist, cid=None):
 
     remover = dados.get("remover") or []
     if not isinstance(remover, list) or not remover:
-        _log(f"[checklist] {nome}: motorista, nada a remover ({len(itens)} itens, "
+        _log(f"[checklist] {nome}: caso comum, nada a remover ({len(itens)} itens, "
              f"fonte: {fonte})")
         return itens, f"confirmado pelo caso ({fonte})"
     fora = {norm(r.get("item")) for r in remover if isinstance(r, dict)}

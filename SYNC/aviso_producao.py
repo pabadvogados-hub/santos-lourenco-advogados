@@ -7,7 +7,7 @@ em producao e que, em breve, sera distribuida; e que, depois da distribuicao,
 ele vai ser atualizado e receber os dados para o acesso ao Portal do Cliente."
 
 Primeira fase do pedido de 12/08 ("card muda, cliente sabe"), so para a etapa
-Santos Lourenço Producao (18) > "Producao da Inicial". Funciona como um webhook: le a trilha
+Produção (18) > "Producao da Inicial". Funciona como um webhook: le a trilha
 de movimentos do CRM (wa_board_hist), que registra TANTO o movimento feito na
 tela quanto o feito por robo, e avisa UMA vez por cliente.
 

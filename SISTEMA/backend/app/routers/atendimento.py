@@ -148,7 +148,7 @@ async def _automacao_pode_mover(db, conv, para_pid):
 async def _coluna_existe(db, pid, etapa):
     """A coluna existe nesse board? Card mandado pra coluna que nao existe some
     do quadro do CRM (foi o que aconteceu com 'Primeiro Contato', apagada do
-    Santos Lourenço Leads numa reorganizacao das colunas)."""
+    Reclamantes numa reorganizacao das colunas)."""
     cols = (await db.execute(select(Stage.nome).where(Stage.pipeline_id == pid))).scalars().all()
     return (not cols) or (etapa in cols)
 
@@ -182,7 +182,7 @@ async def _mover_automatico(db, conv, para_pid, para_etapa, quem, origem, nota=N
 
 
 async def _mover_para_producao(db, conv):
-    """Move a conversa pra fila 'Producao da Inicial' (pipeline Santos Lourenço Producao).
+    """Move a conversa pra fila 'Producao da Inicial' (pipeline Produção).
     Idempotente: se ja esta la, nao faz nada nem duplica a nota."""
     pipe = (await db.execute(select(Pipeline).where(Pipeline.nome == PIPE_PRODUCAO))).scalar_one_or_none()
     if not pipe:
@@ -1670,7 +1670,7 @@ async def mover_etapa(conversa_id: int, req: EtapaReq,
 async def board_historico(conversa_id: int, user: Usuario = Depends(usuario_atual),
                           db: AsyncSession = Depends(get_db)):
     """Quem moveu este card de board, quando e por que — inclusive as tentativas
-    que a trava recusou. E a resposta para 'meu card voltou pro Santos Lourenço Leads sozinho'."""
+    que a trava recusou. E a resposta para 'meu card voltou pro Reclamantes sozinho'."""
     nomes = {p.id: p.nome for p in (await db.execute(select(Pipeline))).scalars().all()}
     rows = (await db.execute(select(MoveBoard).where(MoveBoard.conversa_id == conversa_id)
                              .order_by(desc(MoveBoard.id)).limit(100))).scalars().all()
@@ -2022,7 +2022,7 @@ def _abrir_tarefa_da_troca(con, plano, nome, telefone):
 
     donos = [plano.get('dona_da_venda')]
     if plano.get('urgente'):
-        donos.append((_os.getenv('RESPONSAVEL_REVISAO_EMAIL') or '').strip().lower())
+        donos.append((_os.getenv('REVISORA_EMAIL') or _os.getenv('RESPONSAVEL_REVISAO_EMAIL') or '').strip().lower())
     for email in donos:
         uid, unome = _usuario_id_por_email(con, email)
         if uid and not con.execute('select id from tarefa_responsaveis where tarefa_id=? '

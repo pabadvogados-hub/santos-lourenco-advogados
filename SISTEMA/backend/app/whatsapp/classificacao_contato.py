@@ -5,7 +5,7 @@ Ate agora o board e a coluna ficavam guardados na CONVERSA. Quando a conversa er
 apagada no celular, ou o WhatsApp abria uma nova para a mesma pessoa, o card nascia
 do zero na Caixa de Entrada e a equipe tinha que classificar de novo alguem que ja
 era conhecido. Foi o que aconteceu com os contatos que "sairam" do board pessoal do
-Ton e apareceram no Santos Lourenço Leads.
+Ton e apareceram no Reclamantes.
 
 Agora toda classificacao feita por gente (e todo avanco de esteira aceito) fica
 gravada pelo TELEFONE, em `wa_contato_classificacao`. Quando nasce uma conversa

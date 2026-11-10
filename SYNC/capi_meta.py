@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
-"""Devolve ao Meta o que aconteceu com cada clique no anuncio (pedido da Pam, 29/09/2026).
+"""Devolve ao Meta o que aconteceu com cada clique no anuncio.
 
 O anuncio traz a conversa e o CRM sabe o resto: se virou lead qualificado, se o
-motorista JA SAIU da empresa e se fechou contrato. Ate agora o Meta nao ficava
+trabalhador JA SAIU da empresa (ou e caso urgente) e se fechou contrato. Ate agora o Meta nao ficava
 sabendo de nada disso, entao ele so sabia procurar "gente que puxa conversa".
 Aqui a gente conta, pela Conversions API, o que cada clique virou. E assim que se
 ensina o Meta a procurar DEMITIDO em vez de qualquer clique.
 
-O que amarra o clique ao anuncio e o `ctwa_clid`, capturado no webhook desde 28/09
+O que amarra o clique ao anuncio e o `ctwa_clid`, capturado no webhook
 (ver app/whatsapp/ctwa.py). Nao mandamos telefone nem nome: so o codigo do clique.
 
 Eventos:
-  Lead           -> o Sebastiao qualificou e o card saiu da Caixa de Entrada
-  LeadDemitido   -> o motorista disse que ja saiu da empresa (o que a gente quer)
+  Lead           -> a SDR qualificou e o card saiu da entrada
+  LeadDemitido   -> o trabalhador disse que ja saiu da empresa (o que a gente quer)
   Contrato       -> o card chegou na contratacao
 
 Uso:
@@ -55,7 +55,7 @@ SAIU = re.compile(r'(ja sai|sai de la|sai da empresa|sai dela|sai faz|sai tem|sa
 FICOU = re.compile(r'(ainda (to|estou|trabalho|continuo|sigo)|continuo (la|na)|to la ainda|sigo na mesma|'
                    r'mesma empresa ainda|ainda na empresa|ainda nela|ainda sim|nao sai|ainda nao sai)')
 BOARD_LEADS, CAIXA = 10, 'Caixa de Entrada'
-BOARDS_CONTRATO = ('Santos Lourenço Contratação', 'Santos Lourenço Producao', 'Santos Lourenço Clientes')
+BOARDS_CONTRATO = ('Contratação', 'Produção', 'Clientes')
 
 
 def sa(s):
@@ -119,10 +119,10 @@ def eventos_do_lead(c, cid):
 
 
 # O Meta so aceita alguns nomes de evento quando a fonte e business_messaging
-# (descoberto na marra em 29/09: Lead, Contact, Schedule e nome proprio sao recusados).
+# (Lead, Contact, Schedule e nome proprio sao recusados).
 # Os que passam: LeadSubmitted, InitiateCheckout, AddToCart, ViewContent, Purchase.
 # Entao o nosso funil vira:
-MAPA = {'Lead': 'LeadSubmitted',          # o Sebastiao qualificou
+MAPA = {'Lead': 'LeadSubmitted',          # a SDR qualificou
         'LeadDemitido': 'InitiateCheckout',  # JA SAIU da empresa: e este que a gente quer
         'Contrato': 'Purchase'}           # fechou
 PAGINA = os.getenv('META_PAGE_ID', '')   # pagina que roda os anuncios

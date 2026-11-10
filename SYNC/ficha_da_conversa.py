@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Volta na ficha depois que o card entra no funil de fechado.
 
-O BURACO (auditoria de 24/09/2026, confirmada nos dados):
+O BURACO (confirmado nos dados):
 quem move o card e uma pessoa, e ela move DEPOIS de desligar. O cron do
 pos_ligacao roda 2 minutos depois da ligacao, quando o card ainda esta em "Lead
 Quente" ou "Caixa de Entrada". O portao `no_funil_fechado` fecha, a ficha nao e

@@ -177,7 +177,7 @@ async def _agendar(processo, data, por):
 async def criar(dados: AudIn, user=Depends(usuario_atual)):
     num = (dados.processo or "").strip()
     if not N.CNJ.fullmatch(num):
-        raise HTTPException(400, "numero do processo no formato 0000000-00.0000.0.00.0000")
+        raise HTTPException(400, "numero do processo no formato 9815290-10.0000.0.00.0420")
     data = _data_ok(dados.data)
     hora = _hora_ok(dados.hora)
     _validar(dados.subtipo or "audiencia", dados.modalidade)

@@ -108,7 +108,9 @@ def criar_pasta_cliente(drive_service, nome_cliente: str) -> str:
     - PASTA DO CLIENTE
     Retorna o ID da pasta principal criada.
     """
-    pasta_reclamante_id = os.getenv("GOOGLE_PASTA_RECLAMANTE", "154Iv5J0KuoEWKGB_y3ddOM4qn4FtZgiZ")
+    pasta_reclamante_id = os.getenv("GOOGLE_PASTA_RECLAMANTE", "")
+    if not pasta_reclamante_id:
+        raise RuntimeError("GOOGLE_PASTA_RECLAMANTE nao configurado no config/.env (id da pasta RECLAMANTE no Drive)")
 
     nome_alvo = nome_cliente.upper().strip()
     MIME_DIR = 'application/vnd.google-apps.folder'
@@ -185,7 +187,7 @@ def buscar_proximo_contrato(drive_service, nome_cliente="", empresa="", area="TR
     from datetime import datetime
     from googleapiclient.http import MediaInMemoryUpload
 
-    planilha_id = os.getenv("GOOGLE_SHEETS_CONTRATOS_ID", "1Ts-lEF0PPxMB04DboM8sC-JbtnxCMBmr")
+    planilha_id = os.getenv("GOOGLE_SHEETS_CONTRATOS_ID", "")
 
     try:
         content = drive_service.files().get_media(fileId=planilha_id).execute()
@@ -249,16 +251,16 @@ def gerar_documentos_cliente(drive_service, docs_service, nome_cliente: str,
 
     templates = {
         'Contrato de Honorarios': {
-            'template_id': '1v1llkkW2ojFyLAMqjpwAqorBdjP8VufMw0Z5X_JHye0',
-            'pasta_id': '1Jr92u_fItZYkT3M8xBGIcRu6Ik45mW5e',
+            'template_id': os.getenv('GOOGLE_TEMPLATE_CONTRATO', ''),
+            'pasta_id': os.getenv('GOOGLE_PASTA_MODELOS_CONTRATO', ''),
         },
         'Procuracao': {
-            'template_id': '1lvzUaoDqvYNcNqXsTd_SS7Eyc6IZfW_tjdrc26ZoH0Y',
-            'pasta_id': '17YXbCWthZ_8t4Rj8QkwHz1W4pFcihpPV',
+            'template_id': os.getenv('GOOGLE_TEMPLATE_PROCURACAO', ''),
+            'pasta_id': os.getenv('GOOGLE_PASTA_MODELOS_PROCURACAO', ''),
         },
         'Declaracao de Hipossuficiencia': {
-            'template_id': '1toCuH_b3ULMUCv6JVdilCvsLC-LZZT96eDTT8Lewb-M',
-            'pasta_id': '1_tq6SRI0najvU4JnhZZd3dV6loFqb3u5',
+            'template_id': os.getenv('GOOGLE_TEMPLATE_DECLARACAO', ''),
+            'pasta_id': os.getenv('GOOGLE_PASTA_MODELOS_DECLARACAO', ''),
         },
     }
 

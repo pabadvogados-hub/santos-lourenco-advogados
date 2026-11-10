@@ -191,8 +191,8 @@ def _banco_de_teste():
         INSERT INTO tarefa_parceiros VALUES (2, 'Dr. Felipe Montagner', '11999990000', 1);
         INSERT INTO tarefas (id, tipo, titulo, descricao, processo_numero, lawsuits_id, cliente, data, origem, origem_ref,
             criado_por, criado_em, atualizado_em, caso_id)
-            VALUES (584, 'COMENTÁRIO', 'Distribuído: WELLINGTON THIAGO x VILLA_Processo 1002017-33.2026.5.02.0314',
-                    'Card Atualizado', '1002017-33.2026.5.02.0314', '18028610', 'WELLINGTON THIAGO', '2026-10-06',
+            VALUES (584, 'COMENTÁRIO', 'Distribuído: WELLINGTON THIAGO x VILLA_Processo 9757749-94.2026.5.02.1149',
+                    'Card Atualizado', '9757749-94.2026.5.02.1149', '18028610', 'WELLINGTON THIAGO', '2026-10-06',
                     'advbox', '284335022', 'ADVBOX', 1791309400, 1791309400, 77);
         INSERT INTO tarefa_responsaveis (tarefa_id, usuario_id, nome) VALUES (584, 3, 'Vitória Lourenço'), (584, 5, 'Vitória');
     """)
@@ -225,7 +225,7 @@ def _bateria():
          nova["titulo"].startswith("Re: Distribuído: WELLINGTON") and nova["tipo"] == "COMENTARIO"
          and nova["origem"] == "resposta" and nova["origem_ref"] == "584:%d" % r["comentario"]["id"])
     caso("tarefa nova herda processo, cliente, lawsuit e caso; descricao traz o texto e o link de volta",
-         nova["processo_numero"] == "1002017-33.2026.5.02.0314" and nova["cliente"] == "WELLINGTON THIAGO"
+         nova["processo_numero"] == "9757749-94.2026.5.02.1149" and nova["cliente"] == "WELLINGTON THIAGO"
          and nova["lawsuits_id"] == "18028610" and nova["caso_id"] == 77
          and "Vitória, ciente." in nova["descricao"] and (LINK_TAREFA % 584) in nova["descricao"])
     caso("responsaveis da tarefa nova sao quem foi marcado (parceiro com id negativo)",

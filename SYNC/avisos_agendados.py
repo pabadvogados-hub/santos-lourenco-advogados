@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Avisos agendados pela D-API (WhatsApp do escritorio). Pam, 06/10/2026:
-"da Bruna vamos cadastrar para amanha as 09h00 e da Flavia para amanha as 13h00 pela D-API".
+"""Avisos agendados pela D-API (WhatsApp do escritorio): mensagem cadastrada para um dia e hora.
 
 Fila em /opt/santoslourenco/config/avisos_agendados.json: lista de
-    {"id": "...", "quando": "2026-10-07 09:00", "telefone": "5513...", "nome": "Bruna",
+    {"id": "...", "quando": "AAAA-MM-DD 09:00", "telefone": "55DDD...", "nome": "Fulana",
      "texto": "...", "enviado_em": null, "resultado": null}
 O cron roda de 5 em 5 minutos (7h-20h, seg-sab); o que esta vencido e ainda nao foi enviado
 sai pela D-API (SYNC/wa_dapi.py), com 20 s entre mensagens (teto de 3 por minuto do escritorio),
@@ -24,7 +23,7 @@ import time
 AQUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, AQUI)
 FILA = os.environ.get('SL_AVISOS_FILA', '/opt/santoslourenco/config/avisos_agendados.json')
-INTERVALO = 20      # segundos entre mensagens: no maximo 3 por minuto (regra da Pam, 11/09/2026)
+INTERVALO = 20      # segundos entre mensagens: no maximo 3 por minuto (para a Meta nao banir o numero)
 
 
 def _agora():

@@ -283,7 +283,7 @@ def _cep_pela_web(endereco, p, cache):
         u"Preciso do CEP deste endereço no Brasil: \"%s\"%s.\n"
         u"Pesquise na web (sites de CEP: qualeocep, cepsbrasil, cepbrasil, "
         u"buscacep dos Correios). Atenção: o cliente pode ter trocado o tipo "
-        u"do logradouro (Travessa x Rua) ou a grafia (Karole x Karolé x "
+        u"do logradouro (Travessa x Rua) ou a grafia (nome com e sem acento x "
         u"Kaloré); aceite a melhor correspondência no MESMO bairro/cidade. "
         u"Se só existir CEP geral da cidade ou a faixa do bairro, use o mais "
         u"específico que achar.\n"

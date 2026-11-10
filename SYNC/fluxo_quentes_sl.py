@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Fluxo dos LEADS QUENTES: da Caixa de Entrada para a LIGACAO que fecha contrato.
 
-Pedido da Vitória em 14/08/2026. Publico: leads que o termometro marcou como
-quente ou morno e que estao parados na Caixa de Entrada do pipeline Santos Lourenço Leads.
+Publico: leads que o termometro marcou como quente ou morno e que estao parados nas
+colunas de ENTRADA do quadro Reclamantes (Caixa de Entrada e colunas de campanha).
 O objetivo de cada toque nao e vender por escrito, e conseguir UM HORARIO
 para a doutora ligar.
 
@@ -10,9 +10,9 @@ Qualificacao embutida (o que o time pediu):
   - toque 1 pergunta, em uma palavra, se a pessoa JA TEM ACAO OU ADVOGADO;
     quem responde que sim sai da regua e o card vai para Lead Desqualificado;
   - quem responde qualquer outra coisa: regua para na hora, card sobe para
-    Lead Quente e a Vitória recebe aviso para ligar;
-  - a leitura da resposta e feita pelo Claude Code da VPS (assinatura),
-    NUNCA pela API Anthropic, com queda para palavra-chave se o CLI falhar.
+    Lead Quente e o time recebe aviso para ligar (QUENTES_AVISO_TEL);
+  - a leitura da resposta e feita pelo Claude Code instalado no servidor (SL_CLAUDE_BIN),
+    com queda para palavra-chave se o CLI nao existir ou falhar.
 
 Travas de seguranca:
   - quem ja e CLIENTE (telefone bate em jur_clientes) nunca entra;
@@ -52,6 +52,9 @@ DB = '/opt/santoslourenco/SISTEMA/backend/sistema_sl.db'
 FILA = os.path.join(HERE, 'quentes_fila.json')
 PIPELINE = 10
 ETAPA_ORIGEM = 'Caixa de Entrada'
+# colunas de entrada do quadro Reclamantes (ver SISTEMA/backend/app/whatsapp/funis.py)
+ETAPAS_ENTRADA = ('Caixa de Entrada', 'Campanha Fast-food', 'Campanha Supermercado',
+                  'Campanha Acidente de Trabalho', 'Campanha Geral')
 ETAPA_QUENTE = 'Lead Quente'
 ETAPA_DESQUALIFICADO = 'Lead Desqualificado'
 FLUXO_REAQUECE = 'reaquecimento_quente'   # regua de mensagens
@@ -60,17 +63,17 @@ CADENCIA = (0, 1, 3, 6)          # dias a partir da entrada na regua
 JANELA = (8, 20)
 MAX_POR_RODADA = 15      # trava anti-bloqueio: nunca disparar em rajada
 PAUSA_ENTRE_ENVIOS = 9   # segundos entre uma mensagem e a proxima
-# 02/10/2026 (Pam): ela nao recebe mais o LIGAR HOJE nem o JA TEM ACAO; a resposta vira tarefa da vendedora
-# (lead_quente_tarefa.py). Para voltar a avisar alguem, por o telefone em QUENTES_AVISO_TEL.
-VITÓRIA_TEL = os.getenv('QUENTES_AVISO_TEL', '')
-DEPOIMENTOS = 'https://drive.google.com/drive/folders/18PCBQ-aac8wHJJoXshf8QkBIyF5GCBoK'
+# A resposta vira tarefa do comercial (lead_quente_tarefa.py). Para tambem avisar alguem
+# por WhatsApp, por o telefone em QUENTES_AVISO_TEL (vazio = nao avisa).
+VITÓRIA_TEL = os.getenv('QUENTES_AVISO_TEL') or os.getenv('TEL_ALERTA_EQUIPE', '')
+DEPOIMENTOS = os.getenv('DEPOIMENTOS_LINK', '')
 CLAUDE_BIN = os.getenv('SL_CLAUDE_BIN', os.path.expanduser('~/.local/bin/claude'))
 
 # Nao entram sozinhos: bot, parceiro, indicacao interna, canal de conteudo.
-REVISAO_MANUAL = ('blip', 'viratexto', 'regra geral', 'clt art', 'palladium',
-                  'indicação', 'indicacao')
+REVISAO_MANUAL = tuple(x.strip().lower() for x in os.getenv(
+    'QUENTES_REVISAO_MANUAL', 'blip,indicação,indicacao').split(',') if x.strip())
 
-import wa_dapi  # noqa: E402  saida unica de WhatsApp pela D-API (a Z-API caiu em 23/09/2026)
+import wa_dapi  # noqa: E402  saida unica de WhatsApp pela D-API
 
 
 # --------------------------------------------------------------- utilidades
@@ -98,7 +101,7 @@ def _ddi(tel):
 
 
 def zapi_enviar_texto(telefone, texto):
-    """Envia pela D-API (wa_dapi) desde 24/09/2026; o nome ficou para nao mexer em quem chama.
+    """Envia pela D-API (wa_dapi); o nome ficou para nao mexer em quem chama.
     ok so quando a D-API confirmou o envio."""
     if not _tel8(telefone):
         return False, 'sem destino'
@@ -116,7 +119,7 @@ def _con():
 
 
 def _primeiro_nome(nome):
-    """Nome utilizavel ou vazio. @lid e numero nao sao nome (regra de 12/08)."""
+    """Nome utilizavel ou vazio. @lid e numero nao sao nome."""
     n = (nome or '').strip()
     if not n or '@lid' in n or n.replace(' ', '').isdigit():
         return ''
@@ -140,11 +143,11 @@ def _sem_acento(t):
 
 def classificar_resposta(texto):
     """Devolve 'ja_tem_acao' | 'quer_falar' | 'indefinido'.
-    Usa o Claude Code da assinatura; cai para palavra-chave se o CLI falhar."""
+    Usa o Claude Code do servidor; cai para palavra-chave se o CLI falhar."""
     env = dict(os.environ)
     env.pop('ANTHROPIC_API_KEY', None)         # assinatura, nunca API
     prompt = (
-        'Voce le respostas de leads de um escritorio trabalhista de caminhoneiros.\n'
+        'Voce le respostas de leads de um escritorio trabalhista que defende trabalhadores.\n'
         'Classifique a mensagem abaixo em uma destas opcoes:\n'
         '  ja_tem_acao  = a pessoa diz que JA entrou com acao, ja tem advogado ou '
         'ja esta sendo atendida por outro escritorio\n'
@@ -178,7 +181,7 @@ def classificar_resposta(texto):
 
 # ----------------------------------------------------------------- consultas
 def candidatos():
-    """Quentes e mornos parados na Caixa de Entrada, ja filtrados."""
+    """Quentes e mornos parados nas colunas de entrada, ja filtrados."""
     con = _con()
     clientes = set()
     for tel, cel in con.execute('select telefone, celular from jur_clientes'):
@@ -189,8 +192,9 @@ def candidatos():
         "select t.conversa_id, t.temperatura, t.situacao, t.violacoes, "
         "       v.contato_nome, v.contato_telefone "
         "  from lead_termometro t join wa_conversas v on v.id = t.conversa_id "
-        " where t.temperatura in ('quente','morno') and v.pipeline_id=? and v.etapa=?",
-        (PIPELINE, ETAPA_ORIGEM)).fetchall()
+        " where t.temperatura in ('quente','morno') and v.pipeline_id=? and v.etapa in (%s)"
+        % ','.join('?' * len(ETAPAS_ENTRADA)),
+        (PIPELINE,) + ETAPAS_ENTRADA).fetchall()
     con.close()
 
     entram, barrados = [], []
@@ -267,7 +271,7 @@ def texto_toque(i, c):
 
     if i == 0:
         return (
-            f'{ola} Aqui é da Santos Lourenço Advogados, o escritório do caminhoneiro.\n\n'
+            f'{ola} Aqui é do Santos Lourenço Advogados, escritório trabalhista que defende o trabalhador.\n\n'
             f'Você conversou com a gente {sobre} e o seu caso ficou marcado aqui como '
             'prioridade. Não sumi não, voltei justamente porque o que você contou não '
             'pode ficar parado.\n\n'
@@ -285,17 +289,18 @@ def texto_toque(i, c):
             'E se você já resolveu isso por outro caminho, me diz também. Aí eu encerro '
             'seu atendimento e paro de te chamar.')
     if i == 2:
+        depo = (f'Dá uma olhada no depoimento de quem já passou por isso:\n{DEPOIMENTOS}\n\n'
+                if DEPOIMENTOS else '')
         return (
-            f'{ola} Muito motorista acha que reclamar não dá em nada e deixa passar. '
-            'Depois vê o colega receber e se arrepende.\n\n'
-            'Dá uma olhada no depoimento de quem já passou por isso:\n'
-            f'{DEPOIMENTOS}\n\n'
+            f'{ola} Muita gente acha que buscar os direitos não dá em nada e deixa passar. '
+            'Depois vê o colega de trabalho receber e se arrepende.\n\n'
+            + depo +
             'Se quiser falar com a doutora, é só me responder MANHÃ ou TARDE.')
     return (
         f'{ola} Essa é a última vez que te chamo, para não ficar enchendo seu WhatsApp.\n\n'
         'Seu caso continua registrado aqui com a gente. Se um dia quiser retomar, é só '
         'responder essa mensagem, a qualquer hora do dia ou da noite.\n\n'
-        'Boa estrada e se cuida.')
+        'Um abraço e se cuida.')
 
 
 # --------------------------------------------------------------------- motor
@@ -326,7 +331,7 @@ def rodar(enviar=False):
             if enviar:
                 registrar_fluxo(c['conversa_id'], FLUXO_REAQUECE)
 
-    # 2) VARREDURA OBRIGATORIA antes de qualquer toque (regra da Pam, 14/08):
+    # 2) VARREDURA OBRIGATORIA antes de qualquer toque:
     #    ninguem recebe a proxima mensagem sem antes conferir se ja respondeu.
     #    Vale tambem para quem ainda nao recebeu toque nenhum.
     for k, c in fila.items():

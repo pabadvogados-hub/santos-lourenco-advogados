@@ -35,5 +35,12 @@ def __getattr__(nome):
 
 buscar_cliente = _noop('buscar_cliente')
 buscar_processo = _noop('buscar_processo')
-criar_publicacao = _noop('criar_publicacao')
+
+
+def criar_publicacao(lawsuit_id, task_id, guest_ids, comments='', from_id=None, date_deadline=None, urgent=False,
+                     start_date=None, **_):
+    """A tarefa nasce no sistema (tarefas_sl), nunca fora."""
+    import tarefas_sl
+    return tarefas_sl.criar_como_advbox(lawsuit_id, task_id, guest_ids, comments, from_id, date_deadline, urgent,
+                                        start_date)
 listar_tarefas = _noop('listar_tarefas')

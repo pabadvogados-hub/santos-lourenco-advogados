@@ -33,7 +33,7 @@ import urllib.request
 
 LUA_UID = 5
 AGENTE = "Lua (Hermes)"
-SESSAO = "lua-bruna"
+SESSAO = os.environ.get("LUA_SESSAO", "lua")
 
 INTERRUPTOR = os.environ.get("LUA_CEREBRO_ARQUIVO", "/opt/santoslourenco/config/lua_cerebro")
 MEMORIA = os.environ.get("LUA_MEMORIA_ARQUIVO", "/opt/hermes/home/profiles/lua/memories/MEMORY.md")
@@ -120,12 +120,12 @@ def _limpar(entrada):
 def _previa(nome, entrada):
     if nome == "enviar_email":
         from . import lua_email as LE
-        return ("E-mail para enviar\nDe: operacional.bruna@sladvogados.com.br\nPara: %s\nAssunto: %s\nAnexos: %s\n\nTexto:\n%s"
-                % (entrada.get("para"), entrada.get("assunto"), LE.linha_dos_anexos(entrada.get("anexos")), entrada.get("texto")))
+        return ("E-mail para enviar\nDe: %s\nPara: %s\nAssunto: %s\nAnexos: %s\n\nTexto:\n%s"
+                % (os.environ.get("LUA_EMAIL_REMETENTE", "(caixa da equipe)"), entrada.get("para"), entrada.get("assunto"), LE.linha_dos_anexos(entrada.get("anexos")), entrada.get("texto")))
     if nome == "encaminhar_email":
         from . import lua_email as LE
-        return ("E-mail para encaminhar\nDe: operacional.bruna@sladvogados.com.br\nPara: %s\nComentário: %s\nId do original: %s\n\nO original:\n%s"
-                % (entrada.get("para"), entrada.get("comentario") or "nenhum", entrada.get("email_id"), LE.resumo_para_encaminhar(entrada.get("email_id"))))
+        return ("E-mail para encaminhar\nDe: %s\nPara: %s\nComentário: %s\nId do original: %s\n\nO original:\n%s"
+                % (os.environ.get("LUA_EMAIL_REMETENTE", "(caixa da equipe)"), entrada.get("para"), entrada.get("comentario") or "nenhum", entrada.get("email_id"), LE.resumo_para_encaminhar(entrada.get("email_id"))))
     if nome == "operador_tecnico":
         return "O operador técnico vai fazer no servidor: %s" % str(entrada.get("pedido") or "")[:6000]
     if nome in ROTULOS_DA_PREVIA:

@@ -69,8 +69,10 @@ def _get(rota, params=None, paciencia=False):
 
     paciencia=False (tela): um 429 devolve None na hora, em vez de segurar a
     pessoa esperando o limite do ADVBOX. O robo da madrugada usa paciencia."""
+    if (os.getenv('SISTEMA_JURIDICO') or 'nenhum').strip().lower() == 'nenhum' or not _token():
+        return None      # sem sistema juridico externo: a linha do tempo e so a do sistema
     import requests
-    h = {'Authorization': 'Bearer ' + _token(), 'User-Agent': 'SistemaPAB/1.0', 'Accept': 'application/json'}
+    h = {'Authorization': 'Bearer ' + _token(), 'User-Agent': 'SistemaEscritorio/1.0', 'Accept': 'application/json'}
     for tentativa in range(4 if paciencia else 1):
         try:
             r = requests.get(ADVBOX_API + rota, headers=h, params=params or {}, timeout=90 if paciencia else 12)

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 """ALARME DE LEAD TOTALMENTE QUALIFICADO: liga agora.
 
-Pedido da Vitória em 01/09/2026. O termometro so roda uma vez por dia, as 13h30,
-entao um lead que chega as 15h fica um dia inteiro sem ninguem saber que ele
-esta no ponto. Este alarme roda de 15 em 15 minutos e classifica NA HORA.
+O termometro roda uma vez por dia, entao um lead que chega a tarde ficaria um dia inteiro sem
+ninguem saber que ele esta no ponto. Este alarme roda de 15 em 15 minutos e classifica NA HORA.
 
-Criterio de "totalmente qualificado" (o que a Vitória chama de ligar agora):
-  violacao trabalhista identificada  E  a pessoa JA SAIU da empresa.
-Quem ja saiu tem prescricao bienal correndo, entao e o caso com mais urgencia
-e a maior chance de fechar na ligacao.
+Criterio de "ligar agora":
+  violacao trabalhista identificada  E  (a pessoa JA SAIU da empresa  OU  e caso urgente mesmo
+  estando na empresa: rescisao indireta, acidente ou doenca do trabalho).
+Quem ja saiu tem prescricao bienal correndo; quem esta sofrendo na empresa (salario atrasado,
+FGTS sem deposito, assedio, acidente) precisa de orientacao antes de qualquer decisao.
 
-A leitura e feita pelo Claude Code da assinatura, NUNCA pela API Anthropic.
-Cada lead so dispara alarme UMA vez.
+A leitura e feita pelo Claude Code do servidor (SL_CLAUDE_BIN). Cada lead so dispara UMA vez.
+Destinos: o vendedor da vez (VENDEDORES) e os telefones de ALARME_DESTINO / QUENTES_AVISO_TEL.
 
 Uso:
   alarme_qualificado.py            simula
@@ -46,13 +46,13 @@ JANELA_DIAS = int(os.getenv('ALARME_JANELA_DIAS', '7'))     # so lead recente
 MAX_POR_RODADA = int(os.getenv('ALARME_MAX', '8'))
 ETAPA_ALVO = 'Lead Quente'
 
-# quem recebe o alarme: a Vitória sempre, mais a vendedora da vez (22/09/2026: duas vendedoras,
-# de manha a Rafaella, a partir das 14h a Marcella primeiro e depois intercala; ver roteamento_vendedoras.py)
+# quem recebe o alarme: os telefones de ALARME_DESTINO (ou QUENTES_AVISO_TEL), mais o vendedor da vez
+# (roteamento_vendedoras.py, equipe em VENDEDORES). Tudo vazio = so a tarefa na tela.
 DESTINOS = [t.strip() for t in os.getenv(
-    'ALARME_DESTINO', os.getenv('QUENTES_AVISO_TEL', '')).split(',') if t.strip()]
+    'ALARME_DESTINO', os.getenv('QUENTES_AVISO_TEL') or os.getenv('TEL_ALERTA_EQUIPE', '')).split(',') if t.strip()]
 import roteamento_vendedoras as ROTA  # noqa: E402
 
-import wa_dapi  # noqa: E402  saida unica de WhatsApp pela D-API (a Z-API caiu em 23/09/2026)
+import wa_dapi  # noqa: E402  saida unica de WhatsApp pela D-API
 
 
 def _json(path, padrao):
@@ -69,9 +69,11 @@ def _salvar(path, dados):
 
 
 def zapi_enviar_texto(telefone, texto):
-    """Envia pela D-API (wa_dapi) desde 24/09/2026; o nome ficou para nao mexer em quem chama.
+    """Envia pela D-API (wa_dapi); o nome ficou para nao mexer em quem chama.
     ok so quando a D-API confirmou o envio."""
-    d = ''.join(c for c in str(telefone) if c.isdigit())
+    d = ''.join(c for c in str(telefone or '') if c.isdigit())
+    if not d:
+        return False, "sem destino"
     d = d if d.startswith('55') else '55' + d
     try:
         ok, info = wa_dapi.enviar_texto(d, texto)
@@ -100,28 +102,28 @@ def conversa(cid, limite=25):
 
 
 def classificar(cid):
-    """Devolve dict com violacao (bool), saiu (bool), resumo e o porque. None em erro."""
+    """Devolve dict com violacao, saiu, urgente (bool), resumo e o porque. None em erro."""
     txt = conversa(cid)
     if len(txt) < 40:
         return None
     env = dict(os.environ)
-    env.pop('ANTHROPIC_API_KEY', None)          # assinatura, nunca API
+    env.pop('ANTHROPIC_API_KEY', None)          # o CLI usa o login dele
     prompt = (
-        'Voce triagem leads de um escritorio trabalhista de CAMINHONEIROS. '
+        'Voce faz a triagem de leads de um escritorio trabalhista que defende TRABALHADORES. '
         'Leia a conversa e responda em JSON puro, sem texto fora do JSON:\n'
         '{"violacao": true/false, "saiu": true/false, '
         '"data_saida": "quando saiu, do jeito que a pessoa falou, ou vazio se nao disse", '
         '"direitos": ["lista curta dos direitos citados na conversa"], '
         '"caso": "ate 8 palavras", "porque": "ate 15 palavras", '
-        '"gr": true/false, "gerenciadora": "qual, ou vazio", "motivo_gr": "o que ele sabe do motivo, ou vazio"}\n\n'
+        '"urgente": true/false, "tema": "rescisao indireta | acidente | outro"}\n\n'
         'violacao = a conversa indica alguma irregularidade trabalhista concreta '
-        '(hora extra nao paga, tempo de espera, pernoite em cabine, sem registro, '
-        'pagamento por fora, descontos indevidos, acumulo de funcao, etc).\n'
+        '(hora extra nao paga, intervalo cortado, sem registro, pagamento por fora, descontos indevidos, '
+        'acumulo de funcao, salario atrasado, FGTS nao depositado, assedio, acidente, etc).\n'
         'saiu = a pessoa JA SAIU da empresa (foi demitida, pediu conta, contrato acabou). '
         'Se ela ainda trabalha la, saiu=false. Se nao der para saber, saiu=false.\n'
-        'gr = a pessoa esta HOJE bloqueada, divergente, nao recomendada ou com cadastro negado em '
-        'gerenciadora de risco (Buonny, Telerisco, Pamcary, Opentech, BRK, Angellira; muitos chamam de '
-        'seguradora) e por isso nao consegue carregar. Na duvida, gr=false.\n\n'
+        'urgente = a pessoa AINDA esta na empresa, mas relata situacao grave que pede orientacao ja: '
+        'salario atrasado, FGTS sem deposito, assedio ou humilhacao, acidente ou doenca do trabalho, '
+        'afastamento, risco a saude. Na duvida, urgente=false.\n\n'
         f'CONVERSA:\n{txt[:4000]}')
     try:
         r = subprocess.run([CLAUDE_BIN, '-p', '--model', 'sonnet', '--tools', '',
@@ -139,8 +141,7 @@ def classificar(cid):
         if isinstance(dirs, str):
             dirs = [dirs]
         return {'violacao': bool(d.get('violacao')), 'saiu': bool(d.get('saiu')),
-                'gr': bool(d.get('gr')), 'gerenciadora': str(d.get('gerenciadora') or '')[:40],
-                'motivo_gr': str(d.get('motivo_gr') or '')[:90],
+                'urgente': bool(d.get('urgente')), 'tema': str(d.get('tema') or '')[:40],
                 'data_saida': str(d.get('data_saida') or '')[:40],
                 'direitos': [str(x)[:48] for x in dirs if str(x).strip()][:6],
                 'caso': str(d.get('caso') or '')[:60], 'porque': str(d.get('porque') or '')[:90]}
@@ -162,7 +163,7 @@ def candidatos():
     out = []
     for cid, nome, tel, etapa, org in con.execute(
             "select id, contato_nome, contato_telefone, etapa, origem from wa_conversas "
-            "where pipeline_id in (10, 24) and criado_em >= ?", (corte,)):   # 24 = quadro de GR (14/10)
+            "where pipeline_id=10 and criado_em >= ?", (corte,)):   # 10 = quadro Reclamantes
         if str(cid) in est['vistos']:
             continue
         if not tel or ''.join(c for c in str(tel) if c.isdigit())[-8:] in clientes:
@@ -180,16 +181,11 @@ def candidatos():
     return out
 
 
-GR_EQUIVALE = {'Lead Quente': 'Bloqueado agora · ligar já', 'Lead Qualificado': 'Sem bloqueio atual'}
-
-
 def mover(cid, etapa):
     con = _con(ro=False)
     pip = (con.execute('select pipeline_id from wa_conversas where id=?', (cid,)).fetchone() or [10])[0]
-    if pip == 24:                         # 14/10: card no quadro de GR vai para a coluna equivalente de la
-        etapa = GR_EQUIVALE.get(etapa, etapa)
-    if pip in (10, 24) and con.execute('select 1 from wa_stages where pipeline_id=? and nome=?',
-                                       (pip, etapa)).fetchone():
+    if pip == 10 and con.execute('select 1 from wa_stages where pipeline_id=? and nome=?',
+                                 (pip, etapa)).fetchone():
         con.execute('update wa_conversas set etapa=?, atualizado_em=? where id=?',
                     (etapa, datetime.utcnow().isoformat(), cid))
         con.commit()
@@ -225,24 +221,6 @@ def ultima_troca(cid):
     return fmt(lead), fmt(nosso)
 
 
-def texto_alarme_gr(c, cl):
-    """LIGAR AGORA do produto de desbloqueio em gerenciadora (29/09/2026). O briefing do Otto
-    fica na conversa do Sistema Santos Lourenço, como nota."""
-    lead, nosso = ultima_troca(c['id'])
-    L = ['🚨 *LIGAR AGORA · DESBLOQUEIO* 🚨', '', f"*{c['nome'] or 'Sem nome'}*", f"📱 {c['telefone']}", '',
-         '✅ Bloqueado agora' + (f": {cl['gerenciadora']}" if cl.get('gerenciadora') else ' em gerenciadora')]
-    if cl.get('motivo_gr'):
-        L.append(f"   motivo que ele conhece: {cl['motivo_gr']}")
-    if lead:
-        L += ['', f'*Ultima fala dele* ({lead[1]}):', f'   "{lead[0]}"']
-    L += ['', 'Ofereca primeiro o A (R$ 1.497 no Pix ou 12 x R$ 149 + 20% do exito).',
-          'Se travar no preco, o B (R$ 297, guiado no Portal).',
-          'O roteiro completo esta no briefing do Otto, dentro da conversa.', '',
-          f"Origem: {c['origem'] or 'anuncio'} · codigo #{c['id']}", 'Card movido para Lead Quente.', '',
-          '⏱️ Ele esta parado agora: ligar nos proximos minutos.']
-    return '\n'.join(L)
-
-
 def texto_alarme(c, cl):
     lead, nosso = ultima_troca(c['id'])
     L = ['🚨 *LIGAR AGORA* 🚨', '',
@@ -250,8 +228,12 @@ def texto_alarme(c, cl):
          f"📱 {c['telefone']}", '',
          f"✅ Violacao: {cl['caso']}"]
     saida = (cl.get('data_saida') or '').strip()
-    L.append('✅ JA SAIU da empresa' + (f': {saida}' if saida else ''))
-    L.append('   prescricao bienal ja correndo')
+    if cl.get('saiu'):
+        L.append('✅ JA SAIU da empresa' + (f': {saida}' if saida else ''))
+        L.append('   prescricao bienal ja correndo')
+    else:
+        L.append('⚠️ AINDA NA EMPRESA, caso urgente' + (f" ({cl['tema']})" if cl.get('tema') else ''))
+        L.append('   nao orientar pedido de demissao: a advogada avalia antes')
     if cl.get('direitos'):
         L.append('')
         L.append('*Direitos que ele relatou:*')
@@ -272,9 +254,8 @@ def texto_alarme(c, cl):
 
 
 def _vendedora_no_horario(vend):
-    """06/10/2026 (Pam): a vendedora so recebe WhatsApp da API no horario dela (dia util, das 9h
-    as 18h da Rafaella). Fora dele, o alarme fica so na tarefa fixa da tela: o lead_quente_tarefa.py
-    le 'vendedora' e 'texto' deste estado e abre a tarefa urgente."""
+    """O vendedor so recebe WhatsApp da API no horario dele (dia util). Fora dele, o alarme fica so na
+    tarefa fixa da tela: o lead_quente_tarefa.py le 'vendedora' e 'texto' deste estado."""
     a = ROTA.agora_br()
     h = vend.get('horas', (9, 18))
     return a.weekday() in vend.get('dias', (0, 1, 2, 3, 4)) and h[0] <= a.hour < h[1]
@@ -290,25 +271,28 @@ def rodar(enviar):
         if cl is None:
             print(f"  #{c['id']} {c['nome'][:22]}: nao consegui ler, tenta depois")
             continue
-        marca = 'BLOQUEADO EM GERENCIADORA' if cl.get('gr') else 'QUALIFICADO' if (cl['violacao'] and cl['saiu']) else (
+        qualificado = cl['violacao'] and (cl['saiu'] or cl.get('urgente'))
+        marca = 'QUALIFICADO' if qualificado else (
             'violacao, mas ainda na empresa' if cl['violacao'] else 'sem violacao clara')
         print(f"  #{c['id']} {(c['nome'] or '')[:22]:22s} -> {marca} | {cl['caso']}")
         est['vistos'][str(c['id'])] = {'em': datetime.now().isoformat(timespec='seconds'),
                                        'violacao': cl['violacao'], 'saiu': cl['saiu'],
                                        'caso': cl['caso']}
-        if cl.get('gr') or (cl['violacao'] and cl['saiu']):
+        if qualificado:
             alarmes += 1
-            txt = texto_alarme_gr(c, cl) if cl.get('gr') else texto_alarme(c, cl)
+            txt = texto_alarme(c, cl)
             if enviar:
                 mover(c['id'], ETAPA_ALVO)
                 vend = ROTA.quem_recebe_demitido()
-                est['vistos'][str(c['id'])]['vendedora'] = vend['nome']
-                est['vistos'][str(c['id'])]['texto'] = txt   # 02/10/2026: vira tarefa no Sistema Santos Lourenço (lead_quente_tarefa.py)
-                no_horario = _vendedora_no_horario(vend)
-                if not no_horario:
-                    print(f"      fora do horario da {vend['nome']}: sem WhatsApp, so a tarefa fixa")
-                for tel in ([vend['tel']] if no_horario else []) + [t for t in DESTINOS if t != vend['tel']]:
-                    ok, _ = zapi_enviar_texto(tel, txt + f"\n\n👤 Com a *{vend['nome']}*.")
+                est['vistos'][str(c['id'])]['vendedora'] = vend['nome'] if vend else ''
+                est['vistos'][str(c['id'])]['texto'] = txt   # vira tarefa no Sistema Santos Lourenço (lead_quente_tarefa.py)
+                no_horario = bool(vend) and _vendedora_no_horario(vend) and bool(vend.get('tel'))
+                if vend and not no_horario:
+                    print(f"      fora do horario de {vend['nome']}: sem WhatsApp, so a tarefa fixa")
+                vtel = vend['tel'] if vend else ''
+                com = f"\n\n👤 Com *{vend['nome']}*." if vend else ''
+                for tel in ([vtel] if no_horario else []) + [t for t in DESTINOS if t != vtel]:
+                    ok, _ = zapi_enviar_texto(tel, txt + com)
                     print(f'      alarme para {tel}: ' + ('OK' if ok else 'FALHOU'))
             else:
                 print('      --- ALARME QUE SAIRIA ---')

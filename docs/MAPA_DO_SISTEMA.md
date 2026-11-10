@@ -48,7 +48,7 @@ Módulos novos desta implantação (painel de metas da TV, leitura diária de e-
 
 | Grupo | Robôs |
 |---|---|
-| Básico | `backup_db.sh`, `sentinela_automacoes.py`, `transcrever_ligacoes.py`, motor de fluxos (curl) |
+| Básico | `backup_db.sh`, `transcrever_ligacoes.py`, motor de fluxos (curl) |
 | Atendimento/comercial | `lead_quente_tarefa`, `alarme_qualificado`, `fluxo_quentes_sl`, `fluxo_fechamento_sl`, `fluxo_saiu_sl`, `aquecimento_watcher`, `termometro_leads`, `termometro_tarefa`, `comercial`, `crm_dona`, `pos_ligacao`, `card_apos_ligacao`, `fila_ligacao`, `fotos_contatos`, `relatorio_fluxos` |
 | Marketing | `capi_meta`, `estudio_conteudo`, `render_carrossel` |
 | Contratação | `contratacao_watcher`, `cobranca_assinatura`, `vigia_assinatura`, `cobranca_documentos`, `sync_assinados`, `quadro_contratacao`, `contratacao_documentos`, `checklist_documentos` |

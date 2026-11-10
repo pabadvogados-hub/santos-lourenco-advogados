@@ -358,7 +358,7 @@ def capas_por_num(num):
 
 
 _ORIGEM_NAO_E_PARTE = ('INDICA', 'ANUNCIO', 'ESCRITORIO', 'BNI', 'CAMPANHA',
-                       'FACEBOOK', 'INSTAGRAM', 'GOOGLE', 'EURO', '3MIND',
+                       'FACEBOOK', 'INSTAGRAM', 'GOOGLE',
                        'PROGRAMA', 'CONTRATANTE')
 
 

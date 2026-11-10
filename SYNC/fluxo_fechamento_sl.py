@@ -1,31 +1,29 @@
 # -*- coding: utf-8 -*-
 """
-FLUXO DE FECHAMENTO POS-REUNIAO - Santos Lourenço Leads (pipeline 10)
+FLUXO DE FECHAMENTO POS-REUNIAO - quadro Reclamantes (pipeline 10)
 
-Projeto 2 do backlog fechado com a Vitória em 12/08/2026: regua de 12 contatos
-para o lead que saiu da reuniao de fechamento sem assinar (estudo citado
-pela Pam: 85% fecham entre o 8o e o 12o contato).
+Regua de 12 contatos para o lead que saiu da reuniao de fechamento sem assinar
+(a maior parte fecha entre o 8o e o 12o contato).
 
 Regras:
-  - Entra na regua: card na etapa "Pós-Reunião de Fechamento" com telefone
-    (dedup por final do telefone, 8 digitos).
+  - Entra na regua: card na etapa "Pós-Reunião de Fechamento" com telefone e a
+    etiqueta QUALIFICADO (dedup por final do telefone, 8 digitos).
   - Cadencia: toques nos dias D+0,1,2,4,6,8,10,12,14,17,20,25 (12 toques),
     enviados 1x/dia dentro da janela 8h-20h.
-  - Lead RESPONDEU (origem='contato' depois da inscricao): a regua PARA e o
-    time e avisado para assumir a conversa (fechamento e humano).
-  - Card SAIU da etapa: regua encerra sozinha. Se foi para Contrato /
-    Assinatura, Elaboração de Contrato ou Ganho, o time recebe a boa noticia.
-  - Compliance: nenhuma promessa de resultado; linguagem humana e simples
-    (regra da Pam: sem travessoes); ultima mensagem se despede e para.
+  - Lead RESPONDEU: a regua PARA e o time e avisado para assumir (fechamento e humano).
+  - Card SAIU da etapa: regua encerra sozinha. Se foi para Contrato / Assinatura ou
+    Ganho, o time recebe a boa noticia.
+  - Compliance (Provimento 205/2021): nenhuma promessa de resultado; linguagem simples, sem travessao.
+
+.env: FECHAMENTO_AVISO_TEL (quem recebe os avisos; vazio = nao avisa),
+      DEPOIMENTOS_LINK (pasta publica de depoimentos; vazio = toque 3 sem link).
 
 Uso:
     python SYNC/fluxo_fechamento_sl.py             # dry-run (modo sombra)
     python SYNC/fluxo_fechamento_sl.py --enviar    # envia de verdade
     python SYNC/fluxo_fechamento_sl.py --status    # mostra a fila
-Cron VPS (sombra ate a Vitória aprovar as mensagens; depois adicionar --enviar):
-    5 10 * * * cd /opt/santoslourenco && SL_CONFIG_ENV=/opt/santoslourenco/config/.env \
-      /opt/santoslourenco/venv/bin/python /opt/santoslourenco/SYNC/fluxo_fechamento_sl.py \
-      >> /var/log/sl-fechamento.log 2>&1
+Cron (sombra ate o escritorio aprovar as mensagens; depois adicionar --enviar):
+    5 10 * * * cd /opt/santoslourenco && /opt/santoslourenco/venv/bin/python       /opt/santoslourenco/SYNC/fluxo_fechamento_sl.py >> /var/log/sl-fechamento.log 2>&1
 """
 import io
 import json
@@ -46,93 +44,77 @@ if os.path.exists("/opt/santoslourenco/config/.env"):
     load_dotenv("/opt/santoslourenco/config/.env")
 
 import requests
-import wa_dapi  # saida unica de WhatsApp: D-API (24/09/2026)
+import wa_dapi  # saida unica de WhatsApp: D-API
 
 DB = os.getenv("SL_DB", "/opt/santoslourenco/SISTEMA/backend/sistema_sl.db")
 FILA = os.path.join(HERE, "fechamento_fila.json")
 PIPELINE = 10
 ETAPA = "Pós-Reunião de Fechamento"
-ETAPAS_GANHO = ("Contrato / Assinatura", "Elaboração de Contrato", "Ganho")
+ETAPAS_GANHO = ("Contrato / Assinatura", "Ganho")
 CADENCIA = (0, 1, 2, 4, 6, 8, 10, 12, 14, 17, 20, 25)
 JANELA = (8, 20)
-TEL_TIME = ""
+TEL_TIME = os.getenv("FECHAMENTO_AVISO_TEL") or os.getenv("TEL_ALERTA_EQUIPE", "")
 
-# Só entra na régua quem foi QUALIFICADO pelo time (Pam, 12/08): a etiqueta
-# do card na coluna Pós-Reunião precisa conter a palavra QUALIFICADO.
+# So entra na regua quem foi QUALIFICADO pelo time: a etiqueta do card na coluna
+# Pos-Reuniao precisa conter a palavra QUALIFICADO.
 MARCA_QUALIFICADO = "QUALIFICADO"
 
-# Pasta de depoimentos enviada no toque 3 (escolhida pela Vitória 12/08:
-# VIDEOS/DEPOIMENTOS, ja compartilhada como 'qualquer pessoa com o link').
-DEPO_LINK = "https://drive.google.com/drive/folders/18PCBQ-aac8wHJJoXshf8QkBIyF5GCBoK"
+# Pasta de depoimentos enviada no toque 3 (compartilhada como 'qualquer pessoa com o link').
+DEPO_LINK = os.getenv("DEPOIMENTOS_LINK", "")
+ADVOGADA = os.getenv("SDR_ADVOGADA_RESPONSAVEL", "Dra. Vitória")
+SITE = os.getenv("SITE_URL", "")
 
-# 12 toques persuasivos (direcao da Pam, 12/08): tocar na dor, orgulho de quem
-# movimenta o Brasil, nao levar calado, depoimentos de quem ja passou, e a
-# certeza de estar tomando a melhor decisao. Sem travessao, simples cognicao,
-# SEM promessa de resultado (Provimento OAB 205/2021). {nome} = primeiro nome.
+# 12 toques: tocar na dor com respeito, explicar o caminho de forma didatica, prazo,
+# seguranca da decisao. Sem travessao e SEM promessa de resultado (Provimento OAB 205/2021).
+# {nome} = primeiro nome.
 MENSAGENS = (
-    "Oi, {nome}! Aqui é do Santos Lourenço Advogados. Foi muito bom te ouvir na reunião. "
-    "Deixa eu te falar uma coisa que a gente acredita de verdade: é o "
-    "caminhoneiro que segura esse país nas costas. Comida, remédio, "
-    "combustível: nada chega sem você. E quem movimenta o Brasil merece "
-    "respeito também na hora de receber o que é seu. Qualquer dúvida da "
-    "reunião, me chama aqui. 🚛🇧🇷",
+    "Olá, {nome}. Aqui é do Santos Lourenço Advogados. Foi muito bom conversar com você na "
+    "reunião. Ficou alguma dúvida sobre o que conversamos? Pode me perguntar aqui, sem "
+    "compromisso.",
 
-    "{nome}, pensa comigo: quantas madrugadas você virou no volante? Quantos "
-    "feriados longe da família? Quanta hora parada em pátio esperando carga, "
-    "sem ver um centavo por isso? Isso tem nome e tem valor na Justiça. Você "
-    "não precisa levar calado.",
+    "{nome}, o que você contou tem nome e tem valor na Justiça do Trabalho: hora extra que não "
+    "foi paga, intervalo cortado, verbas que ficaram para trás. Você não precisa aceitar isso "
+    "calado.",
 
-    "{nome}, você não precisa acreditar só na gente. Escuta quem já viveu "
-    "isso:\n{depoimentos}\nSão motoristas como você, que decidiram não deixar "
-    "barato. Hoje contam a história de cabeça erguida.",
+    "{nome}, você não precisa acreditar só na gente. Veja quem já passou por isso:\n"
+    "{depoimentos}\nSão trabalhadores como você, que decidiram buscar os seus direitos.",
 
-    "{nome}, tem empresa que conta com o silêncio do motorista. Acha que você "
-    "vai deixar pra lá porque sempre foi assim. Mostrar que você conhece os "
-    "seus direitos muda a conversa. E nessa briga você não entra sozinho: a "
-    "gente vai junto, do começo ao fim.",
+    "{nome}, explicando o caminho: você assina o contrato e a procuração pelo celular, envia os "
+    "documentos, a advogada prepara a ação e o escritório acompanha tudo até o fim. Você não "
+    "fica sozinho em nenhuma etapa.",
 
-    "Preciso ser honesta com você, {nome}: a Justiça tem prazo. Depois de 2 "
-    "anos da saída da empresa, o direito morre e ninguém devolve. Cada semana "
-    "que passa pode ser dinheiro seu escorrendo pelo ralo. Não deixa o "
-    "relógio decidir a sua vida.",
+    "Preciso ser transparente, {nome}: os direitos trabalhistas têm prazo. A ação precisa ser "
+    "proposta em até 2 anos depois da saída da empresa. Cada mês que passa pode significar "
+    "perder parte do que é seu.",
 
-    "{nome}, sei o que trava muita gente: e quanto custa isso? Foi explicado "
-    "na reunião, sem pegadinha e sem surpresa. E tirar dúvida comigo aqui não "
-    "custa nada. Manda um oi que eu te explico de novo, no seu tempo.",
+    "{nome}, se ainda está na empresa e a situação está difícil (salário atrasado, FGTS sem "
+    "depósito, assédio, função acumulada), existe a rescisão indireta. A advogada avalia o seu "
+    "caso antes de qualquer decisão. Me chama aqui que eu explico.",
 
-    "{nome}, fecha o olho e pensa: o que essa causa pode representar pra sua "
-    "família? Respirar aliviado, quitar uma dívida, dar um futuro melhor pra "
-    "quem você ama. Buscar o que é seu por direito não é aventura. É justiça.",
+    "{nome}, pense no que essa causa pode representar para você e para a sua família. "
+    "Buscar o que é seu por direito não é aventura. É justiça.",
 
-    "A sua análise está pronta, {nome}. A equipe da Dra. Vitória olhou o seu "
-    "caso com lupa e encontrou pontos sérios. A parte difícil você já fez: "
-    "contou a sua história. Agora falta uma palavra sua pra gente entrar em "
-    "campo por você.",
+    "{nome}, a análise do seu caso está pronta. A equipe da " + ADVOGADA + " olhou com cuidado "
+    "o que você contou. A parte difícil você já fez. Agora falta só uma resposta sua.",
 
-    "{nome}, começar é mais simples do que parece: CNH e comprovante de "
-    "residência, tudo pelo WhatsApp. Assinatura digital no celular, sem "
-    "cartório, sem burocracia. Da boleia mesmo você resolve em minutos. O "
-    "resto é com a gente.",
+    "{nome}, começar é simples: documento com foto, carteira de trabalho e comprovante de "
+    "residência, tudo pelo WhatsApp. A assinatura é digital, no celular, sem cartório. O resto "
+    "fica com a gente.",
 
-    "{nome}, a Dra. Vitória dedica a carreira a defender quem vive da "
-    "estrada. Estuda, escreve e briga por caminhoneiro todos os dias. Conhece "
-    "o trabalho dela: www.sladvogados.com.br e "
-    "https://vitorialourenco.jusbrasil.com.br/",
+    "{nome}, quem cuida do seu caso é a " + ADVOGADA + ", advogada trabalhista do escritório"
+    + (". Conheça o nosso trabalho: " + SITE if SITE else "") + ".",
 
-    "Vou te falar de coração, {nome}: já vi muito motorista deixar pra depois "
-    "e perder o prazo. Dói ver isso. Não quero que aconteça com você. A sua "
-    "análise segue pronta aqui. Uma resposta sua e a gente arranca hoje mesmo.",
+    "{nome}, já vimos muita gente deixar para depois e perder o prazo. Não queremos que isso "
+    "aconteça com você. A sua análise continua pronta aqui. Uma resposta sua e a gente começa.",
 
-    "{nome}, essa é minha última mensagem, prometo. Só te deixo uma pergunta: "
-    "daqui a um ano, você quer olhar pra trás e ver que lutou pelo que é seu, "
-    "ou que deixou passar? Você movimenta o Brasil. Deixa a gente movimentar "
-    "a sua causa. A porta do Santos Lourenço segue aberta. Forte abraço e estrada boa! 🚛",
+    "{nome}, esta é a minha última mensagem. Se quiser seguir com o seu caso, é só responder "
+    "aqui. A porta do Santos Lourenço Advogados segue aberta. Um abraço.",
 )
 
 MSG3_SEM_LINK = (
-    "{nome}, motorista que a gente atendeu conta de cabeça erguida a história "
-    "de quem decidiu não deixar barato. Se quiser ouvir esses depoimentos, me "
-    "manda um oi que eu te envio. São pessoas como você."
+    "{nome}, muitos trabalhadores que atendemos decidiram buscar os seus direitos e hoje "
+    "contam essa história com tranquilidade. Se quiser ouvir esses depoimentos, me manda um "
+    "oi que eu te envio."
 )
 
 
@@ -159,7 +141,10 @@ def _ddi(tel):
 
 def zapi_enviar_texto(telefone, texto):
     # Canal: D-API pelo numero oficial (wa_dapi); o nome da funcao ficou so para nao mexer nos chamadores.
-    # ok so quando a D-API confirmou o envio (com id da mensagem).
+    # ok so quando a D-API confirmou o envio (com id da mensagem). Sem telefone (aviso nao configurado): nao envia.
+    if not str(telefone or "").strip():
+        print("  (aviso ao time nao configurado: FECHAMENTO_AVISO_TEL vazio)")
+        return False
     try:
         ok, info = wa_dapi.enviar_texto(_ddi(telefone), texto)
         if not ok:

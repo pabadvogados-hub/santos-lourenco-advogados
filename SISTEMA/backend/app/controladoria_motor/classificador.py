@@ -46,7 +46,7 @@ _PARCEIROS = _ADVOGADOS.get('parceiros') or {}
 
 # Marcadores de plural/genero do PJe: "o(s) agravo(s)", "intimado(a)",
 # "contraminutar(em)". Sem tirar isso, "agravo(s) de instrumento" nunca casa
-# com o gatilho "agravo de instrumento" (erro real: Anderson x MIP, 24/09/2026).
+# com o gatilho "agravo de instrumento" (erro real: caso C x empresa C, 24/09/2026).
 _MARCADOR = re.compile(r'\((?:s|a|as|os|em|m|ns|is|eis|ao|oes)\)')
 
 
@@ -153,7 +153,7 @@ def _so_cabecalho(texto_norm):
     t = re.sub(r'[^a-z]+', ' ', t).strip()
     return len(t) < 80
 
-# Grau pelo cabecalho da publicacao. Caso Cleber (0001091-16.2025.5.06.0016, 05/10/2026):
+# Grau pelo cabecalho da publicacao. Caso Cleber (9179526-79.2025.5.06.6228, 05/10/2026):
 # acordao da 3a Turma do TRT6 pontuou 'sentenca' e 'recurso ordinario' da ementa e virou
 # RECURSO ORDINARIO; o recurso cabivel contra acordao e o de revista (art. 896 CLT), com ED
 # em paralelo. O cabecalho (orgao, 'intimadas do acordao', 'PJe 2o grau') diz o grau.
@@ -290,7 +290,7 @@ def classificar(intimacao: dict, titularidade: dict | None = None) -> dict:
     clientes_cad = _lista(_tit_pre.get('clientes')) or _lista(_tit_pre.get('cliente'))
     adversos_cad = _lista(_tit_pre.get('adversos')) or _lista(_tit_pre.get('parte_adversa'))
     # Regra 3 da calibracao: sem polo no cadastro, a propria publicacao diz quem
-    # e quem (cabecalho do PJe ou do e-SAJ). Banco do Brasil x Etabel e a
+    # e quem (cabecalho do PJe ou do e-SAJ). Banco do caso D x empresa D e a
     # interdicao do Sergio (01/10/2026) so se resolvem assim.
     polo_inferido = None
     if clientes_cad:
@@ -581,31 +581,31 @@ if __name__ == '__main__':   # bateria rapida: python -m app.controladoria_motor
     print('marcador (s):', _norm('Recebo o(s) Agravo(s) de Instrumento, intime(m)-se para contraminutar(em)'))
     # grau pelo cabecalho (caso Cleber, 05/10/2026): acordao de Turma nao abre RO, abre RR + ED
     cleber = ('PODER JUDICIARIO JUSTICA DO TRABALHO TRIBUNAL REGIONAL DO TRABALHO DA 6a REGIAO TERCEIRA TURMA '
-              'Relatora: MARIA CLARA ROT 0001091-16.2025.5.06.0016 RECORRENTE: FULANO RECORRIDO: EMPRESA LTDA '
+              'Relatora: MARIA CLARA ROT 9179526-79.2025.5.06.6228 RECORRENTE: FULANO RECORRIDO: EMPRESA LTDA '
               'INTIMACAO DESTINATARIO: EMPRESA LTDA [Terceira Turma] Ficam as partes intimadas do acordao proferido '
               'no presente processo. Acesso ao sistema PJe-JT - 2o grau. EMENTA: RECURSO ORDINARIO E RECURSO ADESIVO. '
               'Recursos ordinarios interpostos contra sentenca que julgou parcialmente procedente a reclamacao. '
               'RECURSO DAS RECLAMADAS PROVIDO. RECURSO DO RECLAMANTE DESPROVIDO.')
-    sent = ('PODER JUDICIARIO JUSTICA DO TRABALHO 16a VARA DO TRABALHO DO RECIFE ATOrd 0001091-16.2025.5.06.0016 '
+    sent = ('PODER JUDICIARIO JUSTICA DO TRABALHO 16a VARA DO TRABALHO DO RECIFE ATOrd 9179526-79.2025.5.06.6228 '
             'SENTENCA. Julgo procedente em parte a reclamacao e condeno a reclamada ao pagamento de horas extras.')
     for nome, texto, esperado in (('acordao de Turma do TRT -> RR', cleber, 'RECURSO DE REVISTA'),
                                   ('sentenca da Vara -> RO', sent, 'RECURSO ORDINARIO')):
-        r = classificar({'processo': '0001091-16.2025.5.06.0016', 'tribunal': 'TRT6', 'texto': texto, 'data': '2026-10-05T03:00:00+00:00'})
+        r = classificar({'processo': '9179526-79.2025.5.06.6228', 'tribunal': 'TRT6', 'texto': texto, 'data': '2026-10-05T03:00:00+00:00'})
         got = r.get('ato')
         bom = got == esperado and (esperado != 'RECURSO DE REVISTA' or any(p.get('ato') == 'EMBARGOS DE DECLARACAO' and p.get('paralelo') for p in r.get('prazos') or []))
         ok += bom
         casos.append((nome, texto, esperado))
         print('%s  %-28s -> %s (esperado %s)' % ('OK  ' if bom else 'FALHA', nome, got, esperado))
     # despacho composto (a equipe 86458, 06/10/2026): emenda recebida + audiencia designada + 5 dias para documentos
-    emanuella = 'PODER JUDICIÁRIO JUSTIÇA DO TRABALHO TRIBUNAL REGIONAL DO TRABALHO DA 2a REGIÃO 1a VARA DO TRABALHO DE SANTOS ATOrd 1001509-94.2026.5.02.0441 RECLAMANTE: EMANUELLA ARAUJO DE ANDRADE RECLAMADO: SUSHI RIBEIRO RAMOS LTDA INTIMAÇÃO Fica V. Sa. intimado para tomar ciência do Despacho ID 03ea768 proferido nos autos. CONCLUSÃO Nesta data, faço os autos conclusos ao (à) Exmo. (a) Juiz (íza) do Trabalho. Santos, 05/10/2026 TAINA BERTOLACI DE VALENTIN Estagiário Conhecimento DECISÃO Recebo a petição Id d77d687 como emenda à inicial. Retifique-se o valor da causa, a fim de constar R$ 78.623,52. Designo a audiência Inicial: 01/12/2026 10:05 na modalidade HÍBRIDA na qual partes e advogados deverão comparecer de forma presencial na SALA DE AUDIÊNCIAS da 1a Vara do Trabalho de Santos, situada na Rua Braz Cubas, 158 - 1o andar, Centro, Santos - SP, 11013-162, OU telepresencial, por meio da plataforma ZOOM, no link abaixo. A ausência do reclamante e/ou seu advogado à audiência importa o arquivamento da reclamação, e o não comparecimento do reclamado importa revelia, além de confissão quanto à matéria de fato, nos termos do art. 844, CLT. Ante a conclusão do julgamento da ADC 80, deverá o(a) requerente da gratuidade juntar em 5 dias, sob pena de preclusão e à luz do § 2o do art. 99 do CPC: a) integralidade de sua CTPS digital; b) 3 últimos holerites (se empregado) , sem prejuízo da juntada de documentos que entender pertinente para demonstrar a precariedade financeira, caso possua rendimento(s) superior a faixa limite ou patrimônio(s) suficientes a arcar com as custas e despesas judicias, tudo sob pena de indeferimento do pedido. Recomenda-se a chegada com 30 minutos de antecedência por ser necessária a identificação individualizada para acesso ao Fórum. No momento da audiência, os participantes que comparecerem presencialmente serão apregoados pelo servidor designado para acompanhamento da sessão A audiência é INICIAL, não sendo o momento para produção da prova testemunhal. A defesa deverá ser efetuada via peticionamento eletrônico, atribuindo-lhe ou não sigilo, no sistema Pje, an'  # texto real do DJEN (cache do SYNC, 06/10/2026)
-    r = classificar({'processo': '1001509-94.2026.5.02.0441', 'tribunal': 'TRT2', 'orgao': '1a Vara do Trabalho de Santos',
-                     'texto': emanuella, 'data': '2026-10-06T03:00:00+00:00', 'requer_manifestacao': True, 'prazo_dias': 5})
+    exemplo_despacho = 'PODER JUDICIÁRIO JUSTIÇA DO TRABALHO TRIBUNAL REGIONAL DO TRABALHO DA 2a REGIÃO 1a VARA DO TRABALHO DE SANTOS ATOrd 9431272-85.2026.5.02.6259 RECLAMANTE: FULANA DE TAL EXEMPLO RECLAMADO: RESTAURANTE EXEMPLO LTDA INTIMAÇÃO Fica V. Sa. intimado para tomar ciência do Despacho ID 03ea768 proferido nos autos. CONCLUSÃO Nesta data, faço os autos conclusos ao (à) Exmo. (a) Juiz (íza) do Trabalho. Santos, 05/10/2026 TAINA BERTOLACI DE VALENTIN Estagiário Conhecimento DECISÃO Recebo a petição Id d77d687 como emenda à inicial. Retifique-se o valor da causa, a fim de constar R$ 78.623,52. Designo a audiência Inicial: 01/12/2026 10:05 na modalidade HÍBRIDA na qual partes e advogados deverão comparecer de forma presencial na SALA DE AUDIÊNCIAS da 1a Vara do Trabalho de Santos, situada na Rua Braz Cubas, 158 - 1o andar, Centro, Santos - SP, 11013-162, OU telepresencial, por meio da plataforma ZOOM, no link abaixo. A ausência do reclamante e/ou seu advogado à audiência importa o arquivamento da reclamação, e o não comparecimento do reclamado importa revelia, além de confissão quanto à matéria de fato, nos termos do art. 844, CLT. Ante a conclusão do julgamento da ADC 80, deverá o(a) requerente da gratuidade juntar em 5 dias, sob pena de preclusão e à luz do § 2o do art. 99 do CPC: a) integralidade de sua CTPS digital; b) 3 últimos holerites (se empregado) , sem prejuízo da juntada de documentos que entender pertinente para demonstrar a precariedade financeira, caso possua rendimento(s) superior a faixa limite ou patrimônio(s) suficientes a arcar com as custas e despesas judicias, tudo sob pena de indeferimento do pedido. Recomenda-se a chegada com 30 minutos de antecedência por ser necessária a identificação individualizada para acesso ao Fórum. No momento da audiência, os participantes que comparecerem presencialmente serão apregoados pelo servidor designado para acompanhamento da sessão A audiência é INICIAL, não sendo o momento para produção da prova testemunhal. A defesa deverá ser efetuada via peticionamento eletrônico, atribuindo-lhe ou não sigilo, no sistema Pje, an'  # texto real do DJEN (cache do SYNC, 06/10/2026)
+    r = classificar({'processo': '9431272-85.2026.5.02.6259', 'tribunal': 'TRT2', 'orgao': '1a Vara do Trabalho de Santos',
+                     'texto': exemplo_despacho, 'data': '2026-10-06T03:00:00+00:00', 'requer_manifestacao': True, 'prazo_dias': 5})
     aud = r.get('audiencia') or {}
     par = [p for p in r.get('prazos') or [] if p.get('compromisso')]
     bom = (r.get('ato') == 'JUNTADA DE DOCUMENTOS' and aud.get('data') == '2026-12-01' and aud.get('hora') == '10:05'
            and len(par) == 1 and par[0]['vencimento'] == '2026-12-01' and [p for p in r['prazos'] if not p.get('paralelo')][0].get('dias') == 5)
     ok += bom
-    casos.append(('despacho composto: juntada + audiencia', emanuella, 'JUNTADA DE DOCUMENTOS + audiencia 01/12'))
+    casos.append(('despacho composto: juntada + audiencia', exemplo_despacho, 'JUNTADA DE DOCUMENTOS + audiencia 01/12'))
     print('%s  %-28s -> %s + audiencia %s %s %s' % ('OK  ' if bom else 'FALHA', 'despacho composto', r.get('ato'), aud.get('data'), aud.get('hora'), aud.get('modalidade')))
     # audiencia que ja passou nao e designacao: texto que so cita a audiencia de ontem nao vira compromisso
     r2 = classificar({'processo': 'x', 'tribunal': 'TRT2', 'texto': 'Junte os documentos em 5 dias. Audiencia inicial realizada em 01/09/2026 10:00.',

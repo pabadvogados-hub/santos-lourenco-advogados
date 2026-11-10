@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-VIGIA DA CONTRATACAO — pipeline "Santos Lourenço Contratação" (Sistema Santos Lourenço, VPS).
+VIGIA DA CONTRATACAO — pipeline "Contratação" (Sistema Santos Lourenço, VPS).
 
 Desenho ditado pelo Joab em 11/08/2026: o time fecha com o lead e o coloca na
 etapa "Enviar Documentos". Dali em diante e tudo automatico:
@@ -99,8 +99,11 @@ TEXTO_VIDEO_D3 = ("{nome}, separei esse vídeo rapidinho pra você. 👆 Na pró
                   "da sua CNH (pode ser a digital) e o seu endereço, que eu já preparo o seu contrato.")
 FERIADOS = {"2026-10-12", "2026-11-02", "2026-11-15", "2026-11-20", "2026-12-25", "2027-01-01", "2027-03-26",
             "2027-04-21", "2027-05-01", "2027-09-07", "2027-10-12", "2027-11-02", "2027-11-15", "2027-11-20",
-            "2027-12-25"}   # os mesmos do Otto, do fluxo_gr_base e da esteira do GR
-VENDEDORAS = {"rafaella@sladvogados.com.br": "a equipe", "marcella@sladvogados.com.br": "Joab"}
+            "2027-12-25"}   # feriados nacionais
+import sys as _s, os as _o
+_s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.dirname(_o.path.abspath(__file__))), 'INTEGRACOES'))
+import escritorio_config as CFG  # noqa: E402
+VENDEDORAS = {e: v[1] for e, v in CFG.vendedores().items()}   # VENDEDORES_EMAILS no .env
 # Coluna de perda, no fim do mesmo quadro: e ali que a Vitória le quantos leads o
 # fluxo perde do "fechou" ate o contrato assinado.
 ETAPA_PERDIDO = "Perdido"
@@ -267,8 +270,7 @@ def _dias_uteis_desde(quando, hoje=None):
 
 
 def _e_motorista(cid):
-    """O video do 3o dia fala de cabine, patio e holerite: vai so para o card de motorista (etiqueta
-    CAMINHONEIRO), e nunca para lead do desbloqueio em GR que tenha caido aqui. Quem nao e motorista
+    """O video do 3o dia fala de cabine, patio e holerite: nao se aplica a esta operacao. Quem nao e motorista
     (operador de betoneira, gestante, madeira) segue com o lembrete de texto."""
     con = sqlite3.connect(f"file:{DB}?mode=ro", uri=True, timeout=15)
     try:
@@ -279,7 +281,8 @@ def _e_motorista(cid):
     if not r:
         return False
     tag, origem = r[0].upper(), r[1].lower()
-    return "CAMINHONEIRO" in tag and "DESBLOQUEIO" not in tag and "desbloqueio" not in origem
+    # o video de 3o dia era de outra operacao; aqui todo reclamante segue com o lembrete de texto
+    return False
 
 
 REF_CONFIRMA = "confirma-produto:%s"
@@ -309,13 +312,13 @@ def _produto_confirmado(cid):
 
 
 def _marcar_trabalhista(cid, executar):
-    """Confirmado trabalhista: a etiqueta do card vira CAMINHONEIRO (painéis e esteira contam certo)."""
+    """Confirmado trabalhista: a etiqueta do card vira RECLAMANTE (painéis e esteira contam certo)."""
     if not executar:
         return
     con = sqlite3.connect(DB, timeout=20)
     try:
         con.execute("pragma busy_timeout=8000")
-        con.execute("update wa_conversas set tag='CAMINHONEIRO' where id=? and coalesce(tag,'')<>'CAMINHONEIRO'",
+        con.execute("update wa_conversas set tag='RECLAMANTE' where id=? and coalesce(tag,'')<>'RECLAMANTE'",
                     (cid,))
         con.commit()
     finally:
@@ -963,7 +966,11 @@ def fase_pedido(est, cfg, executar):
     documentos do contrato (Vitória, 12/08: kit plugado nesta caixa)."""
     sys.stdout.flush()
     sys.path.insert(0, _DIR)
-    import kit_boasvindas_caminhoneiro as kit
+    try:
+        import kit_boasvindas as kit  # kit de boas-vindas do escritorio (opcional)
+    except ImportError:
+        print('  kit de boas-vindas nao instalado (SYNC/kit_boasvindas.py): fase do pedido pulada')
+        return
     for cid, nome, tel in _conversas(ETAPA_PEDIDO):
         c = est["conversas"].setdefault(str(cid), {
             "nome": nome or "", "telefone": tel or "", "pedido_em": None,
@@ -1237,7 +1244,7 @@ def fase_ligacao(est, cfg, executar):
             + (f" Já mandou: {', '.join(FALTA_CURTO[t] for t in tem)}." if tem else "")
             + f"\nLevou {c.get('n_lembrete', 0)} lembretes automáticos e não voltou, "
             f"então parei de mandar mensagem para não queimar o número.\n\n"
-            f"O card está em Santos Lourenço Contratação > {ETAPA_LIGAR} e a vendedora que fechou "
+            f"O card está em Contratação > {ETAPA_LIGAR} e a vendedora que fechou "
             f"recebeu tarefa urgente para ligar.", cfg, executar)
         if executar:
             c["ligacao_em"] = _hoje()
@@ -1245,7 +1252,7 @@ def fase_ligacao(est, cfg, executar):
 
 def fase_perda(est, cfg, executar):
     """Levou a mensagem de ULTIMO CONTATO e nao deu sinal ate o dia seguinte:
-    vira perda declarada (Vitória, 27/08). O card vai para Santos Lourenço Contratação >
+    vira perda declarada (Vitória, 27/08). O card vai para Contratação >
     Perdido, que existe justamente para medir o quanto este fluxo perde.
 
     Qualquer palavra do cliente cancela a perda, mesmo que ele nao mande o
@@ -1272,7 +1279,7 @@ def fase_perda(est, cfg, executar):
         if executar:
             c["perdido_em"] = _hoje()
         alerta_time(f"❌ {nome} ({tel}) não respondeu à mensagem de último contato. "
-                    f"Card movido para Santos Lourenço Contratação > {ETAPA_PERDIDO}.", cfg, executar)
+                    f"Card movido para Contratação > {ETAPA_PERDIDO}.", cfg, executar)
 
 
 def fase_intake(est, cfg, executar):
@@ -1405,13 +1412,13 @@ def fase_assinado(est, cfg, executar):
             _mover_etapa(cid, ETAPA_ASSINADO, executar)
 
     # 'Assinado' e caixa de TRANSITO (Vitória, 11/09/2026): quem assinou segue
-    # sozinho para Santos Lourenço Producao > Aguardando Documentos, onde roda a cobranca
+    # sozinho para Produção > Aguardando Documentos, onde roda a cobranca
     # de provas. Antes ninguem fazia essa travessia e os cards apodreciam aqui
     # (Wellington e a equipe). Usa o mover da varredura: respeita a trava do
     # board e escreve na trilha wa_board_hist.
     import varredura_provas as vp
     for cid, nome, tel in _conversas(ETAPA_ASSINADO):
-        print(f"  [{nome}] Assinado -> Santos Lourenço Producao > Aguardando Documentos")
+        print(f"  [{nome}] Assinado -> Produção > Aguardando Documentos")
         vp.mover_para_producao(cid, executar, etapa="Aguardando Documentos",
                                quem="auto:contratacao-watcher",
                                origem="script:contratacao_watcher")

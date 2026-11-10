@@ -56,8 +56,8 @@ _ATIVO = [
     'a requerente devera',
     # Calibracao de 01/10/2026 (regra 3): papeis processuais que faltavam.
     # "junte o exequente a planilha" abria prazo nosso quando somos executados
-    # (Banco do Brasil x Etabel); "de-se ciencia a parte recorrente" e o prazo
-    # de quem recorreu (Josivaldo x Saraiva).
+    # (Banco do caso D x empresa D); "de-se ciencia a parte recorrente" e o prazo
+    # de quem recorreu (caso F x empresa B).
     # (agravante/agravado, recorrente/recorrido, embargante/embargado sao papeis
     # RELATIVOS ao recurso, nao polos: ficam fora destas listas.)
     'o exequente devera', 'a exequente devera', 'junte o exequente', 'junte a exequente',

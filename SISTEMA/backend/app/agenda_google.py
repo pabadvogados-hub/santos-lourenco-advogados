@@ -1,4 +1,4 @@
-"""Agenda central do escritorio (Google Calendar de sladvogados@gmail.com).
+"""Agenda central do escritorio (Google Calendar da conta AGENDA_EMAIL_PRINCIPAL do .env).
 
 Porte do INTEGRACOES/gcalendar_sl.py para dentro do Sistema Santos Lourenço, para que a
 controladoria consiga fechar o ciclo do POP: publicacao -> conferida pela Vitória
@@ -34,32 +34,17 @@ _CONFIG = Path(os.environ.get('SL_CONFIG_DIR', '/opt/santoslourenco/config'))
 TOKEN_PATH = _CONFIG / 'token_sl_calendar.json'
 TZ = 'America/Sao_Paulo'
 
-# Agenda central. 'primary' = a propria sladvogados@gmail.com.
+# Agenda central. 'primary' = a propria conta do token (AGENDA_EMAIL_PRINCIPAL).
 CALENDAR_ID = os.environ.get('GCAL_SL_ID', 'primary')
 
-# Quem precisa ver o prazo. Identico ao da esteira da inicial.
-# 21/10/2026 (Vitória): operacional@ e operacional2@ nao existem mais; Dra. Vitória entram pelos enderecos delas.
-CONVIDADOS_PF = [
-    'vitoria.lourenco@sladvogados.com.br',
-    'operacional.bruna@sladvogados.com.br',
-    'operacional.flavia@sladvogados.com.br',
-]
+from .juridico.contatos import CFG as _CFG
 
-# Equipe que pode ser convidada pela tela. Os enderecos batem com o cadastro de
-# usuarios do Sistema Santos Lourenço; `trilha` serve para o sistema ja marcar quem executa o
-# ato (PECA -> Vitória, MEIO -> Vitória), conforme a divisao do POP.
-EQUIPE = [
-    {'nome': 'Vitória', 'email': 'vitoria.lourenco@sladvogados.com.br',
-     'papel': 'Estratégia / OAB', 'trilha': None, 'padrao': True},
-    {'nome': 'Vitória', 'email': 'operacional.bruna@sladvogados.com.br',
-     'papel': 'Peças', 'trilha': 'PECA', 'padrao': True},
-    {'nome': 'Vitória', 'email': 'operacional.flavia@sladvogados.com.br',
-     'papel': 'Controladoria', 'trilha': 'MEIO', 'padrao': True},
-    {'nome': 'Joab', 'email': 'joab@sladvogados.com.br',
-     'papel': 'Administrativo', 'trilha': None, 'padrao': False},
-    {'nome': 'Joab', 'email': 'marcella@sladvogados.com.br',
-     'papel': 'Advogada', 'trilha': None, 'padrao': False},
-]
+# Quem precisa ver o prazo: AGENDA_CONVIDADOS do .env (vazio = so a agenda central).
+CONVIDADOS_PF = _CFG.lista('AGENDA_CONVIDADOS')
+
+# Equipe que pode ser convidada pela tela: EQUIPE_EMAILS do .env ("nome:email:papel:trilha").
+# `trilha` (PECA/MEIO) faz o sistema ja marcar quem executa o ato.
+EQUIPE = _CFG.equipe()
 _POR_TRILHA = {p['trilha']: p['email'] for p in EQUIPE if p['trilha']}
 
 

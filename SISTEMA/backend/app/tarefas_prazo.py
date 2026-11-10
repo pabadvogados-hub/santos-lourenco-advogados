@@ -28,7 +28,8 @@ import os
 from .controladoria_motor import feriados as FER
 
 DIAS_ANTES = 2          # o padrao D-2 que o Joab fixou
-AGENDA = "sladvogados@gmail.com"
+from .juridico.contatos import CFG as _CFG
+AGENDA = _CFG.AGENDA_EMAIL_PRINCIPAL or "primary"
 TOKEN = "/opt/santoslourenco/config/token_sl_calendar.json"
 ESCOPO = ["https://www.googleapis.com/auth/calendar"]
 

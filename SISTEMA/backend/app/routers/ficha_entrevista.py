@@ -2,7 +2,7 @@
 """Aba ENTREVISTA da ficha do cliente (Vitória, 02/09/2026).
 
 O modal "Ficha do cliente" do chat ao vivo tem 7 campos genericos e um campo de
-Anotacoes. A entrevista do caminhoneiro nao cabe ali: sao ~60 perguntas. Esta
+Anotacoes. A entrevista do reclamante nao cabe ali: sao ~60 perguntas. Esta
 aba poe cada pergunta em um campo de verdade, para o juridico depois EXTRAIR
 resposta por resposta em vez de garimpar texto solto.
 

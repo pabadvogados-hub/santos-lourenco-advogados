@@ -2,8 +2,8 @@
 """
 Saida UNICA de WhatsApp dos robos da VPS pelo numero oficial do escritorio (D-API).
 
-Historia: desde 18/09/2026 o numero oficial (wa_numeros id 1 do SISTEMA) esta na
-D-API ("dapi:<sessao>"). Em 23/09/2026 ~14:30 a Z-API desconectou de vez, e todo robo
+Historia: o numero oficial (wa_numeros, DAPI_NUMERO_ID) esta na D-API ("dapi:<sessao>").
+A Z-API desconectava sem aviso, e todo robo
 que ainda chamava api.z-api.io passou a perder mensagem calado (a Z-API aceita a chamada
 e devolve 200 mesmo desconectada). Este modulo e o caminho unico daqui para frente.
 
@@ -43,13 +43,13 @@ BASE = "https://api.d-api.cloud/api/v1"
 NUMERO_ID = int(os.getenv("DAPI_NUMERO_ID") or 1)
 TIMEOUT = 60
 
-# 08/10/2026 (pedido da Pam): toda mensagem de texto dos robos sai assinada na 1a linha, em negrito do
-# WhatsApp, como "Alicia". remetente=None -> "Alicia"; remetente="" -> sem assinatura; outro nome -> esse nome.
-ASSINATURA = "Alicia"
+# Toda mensagem de texto dos robos sai assinada na 1a linha, em negrito do WhatsApp, com ASSINATURA_AUTOMACAO
+# do .env. remetente=None -> essa assinatura; remetente="" -> sem assinatura; outro nome -> esse nome.
+ASSINATURA = (os.getenv("ASSINATURA_AUTOMACAO") or "Equipe Santos Lourenço").strip()
 
 
 def assinar(texto, remetente=None):
-    # 08/10/2026 (Joab): dois pontos depois do nome, "*Alicia:*". "*Alicia*" tambem conta como ja assinada.
+    # dois pontos depois do nome, "*Nome:*". "*Nome*" tambem conta como ja assinada.
     nome = ASSINATURA if remetente is None else str(remetente).strip()
     t = str(texto or "")
     if not nome or not t.strip():
@@ -169,7 +169,7 @@ def _post(caminho, corpo, timeout=TIMEOUT):
     return ok, j, r.status_code
 
 
-# 08/10/2026 (Joab: "espelhe as enquetes no sistema para a resposta aparecer ali"). O WhatsApp devolve a
+# Enquetes espelhadas no sistema para a resposta aparecer ali. O WhatsApp devolve a
 # enquete enviada SEM a pergunta. Aqui, no envio, pergunta e opcoes ficam em wa_enquetes (sistema_sl.db); o
 # webhook do sistema (app/whatsapp/dapi.py) mostra a enquete no chat e o voto como resposta do cliente. Se o eco
 # da enquete chegou antes desta anotacao, o balao provisorio e completado aqui. Falha aqui nunca derruba o envio.
@@ -215,8 +215,7 @@ def _falha(info, **extra):
 # ------------------------------------------------------------------ midia
 
 def _como_url(conteudo, nome="arquivo", ext=""):
-    """URL passa direto. Arquivo em base64 vai como data URI (a D-API aceita, testado em
-    24/09/2026) - nunca vira arquivo publico: os PDFs do kit sao privados por regra."""
+    """URL passa direto. Arquivo em base64 vai como data URI (a D-API aceita, testado em - nunca vira arquivo publico: os PDFs do kit sao privados por regra."""
     s = str(conteudo or "").strip()
     if s.startswith(("http://", "https://", "data:")):
         return s
@@ -291,7 +290,7 @@ def enviar_audio(telefone, audio, ptt=True):
 def enviar_video(telefone, video, legenda="", remetente=None):
     """Video que TOCA na conversa, pela rota messages/send/video da D-API.
 
-    Ate 23/10/2026 isso ia como documento mp4 e o cliente recebia arquivo para baixar. A rota de
+    Ate isso ia como documento mp4 e o cliente recebia arquivo para baixar. A rota de
     video existe: sondada com corpo vazio, devolve 400 pedindo sessionId, to e video, enquanto
     messages/send/media e messages/send/file devolvem 404. O sessionId quem poe e o _post.
 

@@ -46,11 +46,16 @@ VALIDADE = 600                      # sistema juridico e Meta: no maximo 10 min
 INICIO = date.fromisoformat(os.getenv('COMERCIAL_INICIO', '2026-11-01'))   # comeco da serie do comercial
 PIPES_SL = (10, 11, 18, 20, 31)    # Reclamantes, Clientes, Producao, Contratacao, Palestra (ver whatsapp/funis.py)
 # Duas vagas de vendedor, configuraveis no .env (a equipe pode comecar sem vendedor; as vagas ficam prontas)
-V1 = (os.getenv('COMERCIAL_VENDEDOR_1') or 'Vendedor 1').strip()
-V2 = (os.getenv('COMERCIAL_VENDEDOR_2') or 'Vendedor 2').strip()
+# Fonte unica: VENDEDORES="Nome:email:telefone:meta:9-18,..." (a mesma do SYNC/roteamento_vendedoras.py).
+# Reserva: COMERCIAL_VENDEDOR_1/2 e COMERCIAL_VENDEDOR_1/2_EMAIL.
+_VEND = [[x.strip() for x in item.split(':')] for item in (os.getenv('VENDEDORES') or '').split(',') if item.strip()]
+_VEND = [v for v in _VEND if v and v[0]]
+V1 = (_VEND[0][0] if len(_VEND) > 0 else os.getenv('COMERCIAL_VENDEDOR_1') or 'Vendedor 1').strip()
+V2 = (_VEND[1][0] if len(_VEND) > 1 else os.getenv('COMERCIAL_VENDEDOR_2') or 'Vendedor 2').strip()
 VENDEDORAS = (V1, V2)
-EMAIL_VENDEDORA = {e.strip().lower(): n for e, n in (
-    (os.getenv('COMERCIAL_VENDEDOR_1_EMAIL') or '', V1), (os.getenv('COMERCIAL_VENDEDOR_2_EMAIL') or '', V2)) if e.strip()}
+_E1 = (_VEND[0][1] if len(_VEND) > 0 and len(_VEND[0]) > 1 else os.getenv('COMERCIAL_VENDEDOR_1_EMAIL') or '')
+_E2 = (_VEND[1][1] if len(_VEND) > 1 and len(_VEND[1]) > 1 else os.getenv('COMERCIAL_VENDEDOR_2_EMAIL') or '')
+EMAIL_VENDEDORA = {e.strip().lower(): n for e, n in ((_E1, V1), (_E2, V2)) if e.strip()}
 TAXA_CONTRATO = {V1: 'com_v1', V2: 'com_v2'}
 PABCOIN_INICIO = date.fromisoformat(os.getenv('MOEDAS_INICIO', '2026-11-01'))   # programa de moedas da equipe: conta a partir daqui
 PABCOIN_VALOR = {'lig': 1, 'contrato': 10, 'dist': 20, 'manha': 3, 'dia': 5, 'seq3': 10, 'seq5': 25}

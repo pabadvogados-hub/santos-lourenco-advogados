@@ -41,7 +41,7 @@ async def resumo(user: Usuario = Depends(usuario_atual), db: AsyncSession = Depe
         select(Fluxo.tipo, func.count(Fluxo.id)).where(Fluxo.ativo == True).group_by(Fluxo.tipo))).all()
     fluxos_ativos = {t: c for t, c in fx}
 
-    pipe = (await db.execute(select(Pipeline.id).where(Pipeline.nome == 'Santos Lourenço Producao'))).scalar_one_or_none()
+    pipe = (await db.execute(select(Pipeline.id).where(Pipeline.nome == 'Produção'))).scalar_one_or_none()
     em_producao, producao_fases = 0, {}
     if pipe:
         em_producao = await _count(Conversa.pipeline_id == pipe)

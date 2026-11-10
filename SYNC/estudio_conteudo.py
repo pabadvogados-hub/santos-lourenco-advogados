@@ -35,13 +35,14 @@ CLAUDE_BIN = os.getenv("SL_CLAUDE_BIN", os.path.expanduser("~/.local/bin/claude"
 # o que o escritorio faz, para a peca nascer no assunto certo
 CONTEXTO = """O escritorio e o Santos Lourenço Advogados, de Suzano, liderado pela
 Dra. Vitória Karen Barbosa dos Santos Lourenço (OAB/SP 490.295). Especialidade: direito do trabalho do
-MOTORISTA PROFISSIONAL, caminhoneiro e carreteiro. Quem le e motorista: fala simples,
-direta, sem juridiques. Nada de tratar o leitor como coitado."""
+TRABALHADOR (reclamante): rescisao indireta, acidente de trabalho, trabalhadores de fast-food e
+supermercado, e trabalhista em geral. Quem le e trabalhador: fala simples, direta, didatica,
+sem juridiques. Nada de tratar o leitor como coitado."""
 
 # O que a OAB proibe e o ESCRITORIO prometer RESULTADO. Descrever o que a LEI
 # assegura e o proprio conteudo informativo que o Provimento 205 autoriza, entao
 # "a lei garante", "direito assegurado pela CLT" e afins TEM de passar. A primeira
-# versao caçava a palavra "garant" solta e reprovava peca correta (24/09/2026).
+# versao caçava a palavra "garant" solta e reprovava peca correta.
 PROIBIDO = [
     (re.compile(r"\bgarantimos\b|\bgaranto\b", re.I), "o escritorio prometendo resultado"),
     (re.compile(r"(n[oó]s|nosso escrit[oó]rio|o sl|a gente)\s+(lhe\s+)?garant\w+", re.I),
@@ -79,11 +80,6 @@ def log(m):
 def escrever(item):
     """Devolve dict com titulo/slides/legenda/hashtags, ou (None, motivo)."""
     formato = (item["formato"] or "carrossel").lower()
-    # carrossel e do @sl.caminhoneiros: marca, trilho e tipos de slide proprios
-    # (skill conteudo-jusmoto). Os outros formatos seguem pelo caminho antigo.
-    if formato == "carrossel":
-        import jusmoto_carrossel
-        return jusmoto_carrossel.escrever(item, PROIBIDO, CLAUDE_BIN)
     descricao, forma_slides = MOLDE.get(formato, MOLDE["carrossel"])
 
     extra = []
@@ -105,7 +101,7 @@ def escrever(item):
         "- sem sensacionalismo, sem contagem regressiva, sem 'ultimas vagas'.\n"
         "- pode convidar a procurar um advogado para analisar O CASO DA PESSOA.\n\n"
         "COMO ESCREVER:\n"
-        "- lingua de motorista, frase curta, zero juridiques. Se usar um termo tecnico, explique na hora.\n"
+        "- lingua do trabalhador, frase curta, zero juridiques. Se usar um termo tecnico, explique na hora.\n"
         "- o primeiro slide e um gancho concreto do dia a dia dele, nao uma pergunta generica.\n"
         "- o ultimo slide fecha com o que ele deve FAZER (guardar documento, procurar orientacao).\n"
         "- NAO use travessao. Nem o longo nem o medio.\n"
@@ -173,7 +169,7 @@ def main():
         con.execute("select 1 from mkt_pauta limit 1")
     except sqlite3.OperationalError:
         return 0                          # tabela ainda nao existe: nada a fazer
-    # o que o carrossel do JusMoto devolve alem do texto
+    # colunas extras da pauta (trava, estatico, angulo), mantidas para a tela
     cols = {r[1] for r in con.execute("PRAGMA table_info(mkt_pauta)")}
     for nome in ("trava", "estatico", "angulo"):
         if nome not in cols:

@@ -2,7 +2,7 @@
 """CONSULTA AOS AUTOS ANTES DA SUGESTAO - Sistema Santos Lourenço (05/10/2026).
 
 Por que existe. Em 05/10/2026 a Dra. Vitória foi fechar a conferencia de um
-despacho do Dambros x MJL ("intime-se a parte embargada a fim de que se
+despacho do caso A x empresa A ("intime-se a parte embargada a fim de que se
 manifeste") e perguntou: "quando voce recepciona um despacho, voce vai ate o
 processo para verificar e depois sugere? Nesse caso, quem e a embargada?".
 O motor lia so o texto da publicacao e tinha sugerido OPOR embargos. Pelos
@@ -280,7 +280,7 @@ def consultar(itens, ato, texto, disponibilizacao, protocolos):
 
 
 if __name__ == '__main__':
-    # o caso real que motivou o modulo: Dambros x MJL, TJPR, publicacao de 02/10/2026
+    # o caso real que motivou o modulo: caso A x empresa A, TJPR, publicacao de 02/10/2026
     autos = [
         {'tipo': 'movimento', 'data': '2026-09-09T15:38:09+00:00', 'descricao': 'ACOLHIDA EM PARTE A IMPUGNAÇÃO AO CUMPRIMENTO DE SENTENÇA', 'classe': 'decisao'},
         {'tipo': 'movimento', 'data': '2026-09-10T21:39:02+00:00', 'descricao': 'EXPEDIÇÃO DE INTIMAÇÃO', 'classe': 'comunicacao'},

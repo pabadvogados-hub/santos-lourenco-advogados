@@ -184,9 +184,9 @@ def _bateria():
 
     def get_text(path):
         chamadas.append(path)
-        return {'markdown': '---\nprocesso: 1014265-09.2022.8.26.0005\ntribunal: TJSP\n---\n# SENTENÇA\n\n![logo](x.png) Vistos. [link](http://x) JULGO PROCEDENTE o pedido. ' + ('texto ' * 40)}
+        return {'markdown': '---\nprocesso: 9782391-95.2022.8.26.3911\ntribunal: TJSP\n---\n# SENTENÇA\n\n![logo](x.png) Vistos. [link](http://x) JULGO PROCEDENTE o pedido. ' + ('texto ' * 40)}
 
-    it = {'id': 86398, 'processo': '1014265-09.2022.8.26.0005', 'data': '2026-10-06T03:00:00+00:00', 'texto': 'Vistos. Int.'}
+    it = {'id': 86398, 'processo': '9782391-95.2022.8.26.3911', 'data': '2026-10-06T03:00:00+00:00', 'texto': 'Vistos. Int.'}
     t1 = ler(con, it, get_all, get_text)
     caso('le o teor da sentenca pelo SYNC e limpa imagem e link',
          t1 and t1['documento_id'] == 3 and t1['fonte'] == 'sync' and 'JULGO PROCEDENTE' in t1['texto']

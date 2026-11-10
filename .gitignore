@@ -83,3 +83,6 @@ SISTEMA/backend/_deploy_backups/
 
 # modelos do escritorio (timbrado, contrato, procuracao): copiados direto na instalacao, nunca no repo publico
 SISTEMA/backend/app/juridico/modelos/*.docx
+
+# saida de pecas geradas em teste local
+SISTEMA/backend/pecas_geradas/

@@ -2,12 +2,10 @@
 """
 E-MAIL EM NOME DO ESCRITORIO (Santos Lourenço Advogados), com anexo.
 
-Por que nao serve o email_casalia.py: ele manda pelo Resend, e no Resend so o
-dominio `casaldaia.com` esta verificado (conferido em 08/09/2026). O correio do
-escritorio e Microsoft 365 -- o MX de sladvogados.com.br aponta para
-`sladvogados-com-br.mail.protection.outlook.com` e o SPF e
+Envia pela propria caixa do escritorio. Se o correio do escritorio for Microsoft 365 -- o MX do dominio do escritorio aponta para
+o Microsoft 365 (`<dominio>.mail.protection.outlook.com`) e o SPF e
 `v=spf1 include:spf.protection.outlook.com -all`, com hard fail. Mandar como
-@sladvogados.com.br por um remetente de fora seria rejeitado ou cairia em
+@<dominio do escritorio> por um remetente de fora seria rejeitado ou cairia em
 spam, que e o pior lugar para um e-mail que cobra prazo de acordo.
 
 Entao o caminho e o proprio Microsoft 365, em dois sabores:

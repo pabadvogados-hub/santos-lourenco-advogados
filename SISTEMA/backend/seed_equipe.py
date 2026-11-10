@@ -33,6 +33,9 @@ def main():
     equipe = [
         ('Joab da Silva Lourenço', email_joab, 'admin', True),
         ('Vitória Karen Barbosa dos Santos Lourenço', email_vit, 'advogado', True),
+        # usuario da automacao: o motor de tarefas assina como ele (app/juridico/equipe.json, id 3).
+        # Rode este seed com o banco VAZIO para os ids sairem 1 = Joab, 2 = Vitoria, 3 = automacao.
+        ('Assistente IA (automacao)', os.getenv('EQUIPE_EMAIL_AUTOMACAO', 'automacao@sistema.local'), 'usuario', False),
     ]
     print('Guarde as senhas abaixo. Elas NAO ficam salvas em lugar nenhum.\n')
     for nome, email, papel, fin in equipe:

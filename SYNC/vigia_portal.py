@@ -24,7 +24,16 @@ import urllib.error
 import urllib.request
 
 sys.path.insert(0, '/opt/santoslourenco/SYNC')
-from sentinela_automacoes import zapi_enviar   # noqa: E402  (envio ja testado da sentinela)
+import wa_dapi   # noqa: E402  saida unica de WhatsApp
+
+
+def zapi_enviar(msg):
+    """Avisa a equipe no WhatsApp de alerta (TEL_ALERTA_EQUIPE no .env; vazio = so loga)."""
+    tel = os.getenv('TEL_ALERTA_EQUIPE', '').strip()
+    if not tel:
+        print('[vigia_portal] sem TEL_ALERTA_EQUIPE, aviso so no log:', msg[:200])
+        return
+    wa_dapi.enviar_texto(tel, msg)
 
 URL = 'http://127.0.0.1:8000/api/portal/me'
 ESTADO = '/opt/santoslourenco/SYNC/vigia_portal_state.json'
